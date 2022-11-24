@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { AppModule } from '../src/app.module';
+import * as pactum from 'pactum';
+import { AuthDto } from '../src/auth/dto';
 
-describe('AppController (e2e)', () => {
+describe('DMS (e2e)', () => {
   let app: INestApplication;
+
+  jest.setTimeout(15000);
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -12,13 +15,35 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+
     await app.init();
+
+    await app.listen(process.env.TEST_PORT);
+    pactum.request.setBaseUrl(`http://localhost:${process.env.TEST_PORT}`);
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('Auth Module', function () {
+    const authDto: AuthDto = {
+      username: 'Admin',
+      password: 'admin',
+    };
+
+    describe('Login', function () {
+      it('should return an object having an access_token', function () {
+        return pactum
+          .spec()
+          .post('/auth/users/login')
+          .withBody({ ...authDto })
+          .expectStatus(201)
+          .inspect()
+          .stores('accessToken', 'access_token');
+      });
+    });
   });
 });

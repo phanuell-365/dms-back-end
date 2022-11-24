@@ -28,7 +28,7 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  departmentName: string;
+  departmentName?: string;
 
   @IsNotEmpty()
   @IsEnum(Roles, {

@@ -63,7 +63,7 @@ export class User extends Model {
   role: Roles;
 
   @Column({
-    allowNull: false,
+    allowNull: true,
     type: DataType.STRING,
   })
   departmentName: string;
