@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { DocumentMetadataService } from './document-metadata.service';
-import { DocumentMetadataController } from './document-metadata.controller';
+import { documentMetadataProvider } from './document-metadata.provider';
 
 @Module({
-  controllers: [DocumentMetadataController],
-  providers: [DocumentMetadataService]
+  providers: [DocumentMetadataService, ...documentMetadataProvider],
 })
 export class DocumentMetadataModule {}

@@ -8,7 +8,7 @@ import { Column, DataType, Model, Table } from 'sequelize-typescript';
     },
   },
 })
-export class DocumentFile extends Model {
+export class DocumentMetadata extends Model {
   @Column({
     primaryKey: true,
     type: DataType.UUID,
@@ -22,24 +22,47 @@ export class DocumentFile extends Model {
     allowNull: false,
     type: DataType.STRING,
   })
-  mimetype: string;
-
-  @Column({
-    allowNull: false,
-    type: DataType.STRING,
-    unique: true,
-  })
-  newFilename: string;
+  title: string;
 
   @Column({
     allowNull: false,
     type: DataType.STRING,
   })
-  originalFilename: string;
+  creator: string;
 
   @Column({
     allowNull: false,
-    type: DataType.INTEGER,
+    type: DataType.STRING,
   })
-  size: number;
+  description: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  keywords: string;
+
+  @Column({
+    allowNull: true,
+    type: DataType.STRING,
+  })
+  contributors: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  type: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.STRING,
+  })
+  format: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.DATE,
+  })
+  creationDate: Date;
 }
