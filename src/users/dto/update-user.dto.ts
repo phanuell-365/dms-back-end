@@ -6,35 +6,35 @@ import { Roles } from '../enum';
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsString()
-  firstname: string;
+  firstname?: string;
 
   @IsOptional()
   @IsString()
-  lastname: string;
+  lastname?: string;
 
   @IsOptional()
   @IsString()
-  username: string;
+  username?: string;
 
   @IsOptional()
   @IsEmail()
-  email: string;
+  email?: string;
 
   @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
 
   @IsOptional()
   @IsString()
-  phone: string;
+  phone?: string;
 
   @IsOptional()
   @IsString()
-  departmentName: string;
+  departmentName?: string;
 
   @IsOptional()
   @IsEnum(Roles, {
     message: 'The role must be a admin, principal, registrar or hod!',
   })
-  role: Roles;
+  role?: Roles;
 }

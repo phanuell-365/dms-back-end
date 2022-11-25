@@ -1,6 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  PreconditionFailedException,
+} from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { USERS_REPOSITORY } from './const';
+import { USER_NOT_FOUND_MESSAGE, USERS_REPOSITORY } from './const';
 import { User } from './entities';
 import { Roles } from './enum';
 import * as bcrypt from 'bcrypt';
@@ -134,23 +139,58 @@ export class UsersService {
     }
   }
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto) {
+    let user = await this.getUser({ username: createUserDto.username });
+
+    if (user) {
+      throw new PreconditionFailedException(
+        'User with the given username already exists',
+      );
+    }
+
+    user = await this.getUser({ email: createUserDto.email });
+
+    if (user) {
+      throw new PreconditionFailedException(
+        'User with the given email already exists',
+      );
+    }
+
+    const salt = await bcrypt.genSalt(10);
+
+    createUserDto.password = await bcrypt.hash(createUserDto.password, salt);
+
+    return await this.usersRepository.create({ ...createUserDto });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.usersRepository.findAll();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(userId: string) {
+    const user = await this.getUser({ userId });
+
+    if (!user) {
+      throw new NotFoundException(USER_NOT_FOUND_MESSAGE);
+    }
+
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(userId: string, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(userId);
+
+    if (updateUserDto.password) {
+      const salt = await bcrypt.genSalt(10);
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, salt);
+    }
+
+    return await user.update({ ...updateUserDto });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(userId: string) {
+    const user = await this.findOne(userId);
+
+    return await user.destroy();
   }
 }
