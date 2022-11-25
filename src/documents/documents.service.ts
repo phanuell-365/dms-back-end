@@ -93,7 +93,7 @@ export class DocumentsService {
 
     // look for the latest version of the document
     const documentVersion =
-      await this.documentVersionService.getDocumentVersion({
+      await this.documentVersionService.getPreviousVersion({
         documentVersionId: document.DocumentVersionId,
       });
 

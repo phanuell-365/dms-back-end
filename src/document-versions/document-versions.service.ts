@@ -13,6 +13,24 @@ export class DocumentVersionsService {
     public readonly documentFileService: DocumentFilesService,
   ) {}
 
+  async getPreviousVersion(options: { documentVersionId?: string }) {
+    let documentVersion: DocumentVersion;
+
+    if (options.documentVersionId) {
+      documentVersion = await this.documentVersionRepository.findOne({
+        where: {
+          id: options.documentVersionId,
+        },
+        order: [['versioningDate', 'DESC']],
+      });
+
+      if (!documentVersion) {
+        return false;
+      }
+    }
+    return documentVersion;
+  }
+
   async getDocumentVersion(options: { documentVersionId?: string }) {
     let documentVersion: DocumentVersion;
 
@@ -47,7 +65,8 @@ export class DocumentVersionsService {
       createDocumentVersionDto.versionNumber &&
       createDocumentVersionDto.oldDocumentFileId
     ) {
-      // check if the document version already exists
+      // check if the document version already exists,
+      // while searching for the document version that has the same version that is 'current'
       const documentVersion = await this.documentVersionRepository.findOne({
         where: {
           DocumentFileId: createDocumentVersionDto.oldDocumentFileId,
@@ -55,17 +74,9 @@ export class DocumentVersionsService {
         },
       });
 
-      // print all the document versions
-      console.log(await this.documentVersionRepository.findAll());
-
-      console.error({
-        createDocumentVersionDto,
-        documentVersion,
-        documentFile: documentFile.dataValues,
-      });
+      console.error({ documentVersion });
 
       if (documentVersion) {
-        console.error('document version already exists');
         // if the document version already exists, we need to find the next version number
         // if the version number is minor, we need to add 1 to the version number, for example, if the version number is 1.0.0, we need to make it 1.0.1
         // if the version number is major, we need to add 1 to the version number, for example, if the version number is 1.0.0, we need to make it 1.1.0
