@@ -1,4 +1,5 @@
 export enum VersionType {
-  DRAFT = 'DRAFT',
+  MINOR = 'MINOR',
+  MAJOR = 'MAJOR',
   FINAL = 'FINAL',
 }

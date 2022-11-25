@@ -6,6 +6,7 @@ import {
   MaxFileSizeValidator,
   Param,
   ParseFilePipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   UploadedFile,
@@ -19,6 +20,7 @@ import * as multer from 'multer';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { DOCUMENT_FILE_MAX_SIZE } from './const';
+import { UpdateDocumentVersionDto } from '../document-versions/dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -71,20 +73,66 @@ export class DocumentsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.documentsService.findOne(id);
+  }
+
+  @Post(':id/versions')
+  @UseInterceptors(
+    FileInterceptor('document', {
+      storage: multer.diskStorage({
+        destination: (req, file, cb) => {
+          // construct the new file destination
+
+          const newFileDestination = path.join(
+            process.cwd(),
+            'src/assets/uploads/',
+          );
+          cb(null, newFileDestination);
+        },
+        filename: (req, file, cb) => {
+          // construct a new file name using the format
+
+          const newFileName =
+            uuidv4() + '.document.' + file.originalname.split('.').pop();
+
+          cb(null, newFileName);
+        },
+      }),
+    }),
+    DocumentsInterceptor,
+  )
+  uploadNewDocumentVersion(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateDocumentVersionDto: UpdateDocumentVersionDto,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: DOCUMENT_FILE_MAX_SIZE,
+          }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.documentsService.uploadNewDocumentVersion(
+      id,
+      updateDocumentVersionDto,
+      file,
+    );
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateDocumentDto: UpdateDocumentDto,
   ) {
     return this.documentsService.update(+id, updateDocumentDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.documentsService.remove(+id);
   }
 }

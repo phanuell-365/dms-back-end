@@ -34,4 +34,8 @@ export class CreateDocumentVersionDto {
   @IsNotEmpty()
   @IsUUID()
   DocumentFileId?: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  oldDocumentFileId?: string;
 }

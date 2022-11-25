@@ -6,7 +6,7 @@ import * as pactum from 'pactum';
 import { AuthDto } from '../src/auth/dto';
 import { CreateUserDto, UpdateUserDto } from '../src/users/dto';
 import { Roles } from '../src/users/enum';
-import { CreateDocumentDto } from '../src/documents/dto';
+import { CreateDocumentDto, UpdateDocumentDto } from '../src/documents/dto';
 import * as path from 'path';
 import { VersionType } from '../src/document-versions/enum';
 
@@ -118,7 +118,7 @@ describe('DMS (e2e)', () => {
 
       describe('View Documents', function () {
         it('should return an empty array', function () {
-          return pactum.spec().get('/documents').inspect().expectStatus(200);
+          return pactum.spec().get('/documents').expectStatus(200);
         });
       });
 
@@ -128,10 +128,6 @@ describe('DMS (e2e)', () => {
           baseDocumentPath,
           'Appendix one test.docx',
         );
-        //
-        // const formData = new FormData();
-        //
-        // formData.append('file', pathToFile);
 
         const createDocumentDto: CreateDocumentDto = {
           contributors: 'Phan',
@@ -144,21 +140,18 @@ describe('DMS (e2e)', () => {
         };
 
         it('should return a new document', function () {
-          return (
-            pactum
-              .spec()
-              .post('/documents')
-              // .withBody({ ...createDocumentDto })
-              .withFile('document', pathToFile)
-              .withMultiPartFormData({ ...createDocumentDto })
-              .expectStatus(201)
-          );
+          return pactum
+            .spec()
+            .post('/documents')
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .expectStatus(201);
         });
       });
 
       describe('View Documents', function () {
         it('should return an empty array', function () {
-          return pactum.spec().get('/documents').inspect().expectStatus(200);
+          return pactum.spec().get('/documents').expectStatus(200);
         });
       });
 
@@ -175,7 +168,7 @@ describe('DMS (e2e)', () => {
           description: 'A picture of a test table.',
           keywords: 'picture tests milestone documentation',
           purposeChange: 'Initial message for the test plan picture',
-          versionType: VersionType.DRAFT,
+          versionType: VersionType.MAJOR,
           title: 'test-plan-template-excel',
         };
 
@@ -186,6 +179,41 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
+            .expectStatus(201);
+        });
+      });
+
+      describe('View Documents', function () {
+        it('should return an empty array', function () {
+          return pactum.spec().get('/documents').expectStatus(200);
+        });
+      });
+
+      describe('Create another new document', function () {
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: CreateDocumentDto = {
+          contributors: 'pdf',
+          creator: 'Administrator',
+          description: 'A sample pdf document.',
+          keywords: 'pdf sample output',
+          purposeChange: 'Initial message for the sample pdf document',
+          versionType: VersionType.MINOR,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .stores('SampleOutputDocumentId', 'id')
             .inspect()
             .expectStatus(201);
         });
@@ -194,6 +222,33 @@ describe('DMS (e2e)', () => {
       describe('View Documents', function () {
         it('should return an empty array', function () {
           return pactum.spec().get('/documents').inspect().expectStatus(200);
+        });
+      });
+
+      describe('Upload a new version', function () {
+        // upload a new version of Sample output.pdf
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: UpdateDocumentDto = {
+          purposeChange: 'Added a new version of the sample pdf document',
+          versionType: VersionType.MINOR,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .inspect()
+            .expectStatus(201);
         });
       });
     });

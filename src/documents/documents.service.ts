@@ -4,6 +4,7 @@ import { DocumentMetadataService } from '../document-metadata/document-metadata.
 import { DocumentVersionsService } from '../document-versions/document-versions.service';
 import { DOCUMENT_NOT_FOUND_MESSAGE, DOCUMENT_REPOSITORY } from './const';
 import { Document } from './entities';
+import { UpdateDocumentVersionDto } from '../document-versions/dto';
 
 @Injectable()
 export class DocumentsService {
@@ -77,6 +78,60 @@ export class DocumentsService {
     }
 
     return document;
+  }
+
+  async uploadNewDocumentVersion(
+    documentId: string,
+    updateDocumentVersionDto: UpdateDocumentVersionDto,
+    file: Express.Multer.File,
+  ) {
+    const document = await this.getDocument({ documentId });
+
+    if (!document) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    // look for the latest version of the document
+    const documentVersion =
+      await this.documentVersionService.getDocumentVersion({
+        documentVersionId: document.DocumentVersionId,
+      });
+
+    if (!documentVersion) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    const documentFile =
+      await this.documentVersionService.documentFileService.uploadDocument({
+        mimetype: file.mimetype,
+        originalFilename: file.originalname,
+        size: file.size,
+        newFilename: file.filename,
+      });
+
+    // create a new version of the document
+    const newDocumentVersion =
+      await this.documentVersionService.createNewVersion({
+        purposeChange: updateDocumentVersionDto.purposeChange,
+        versionType: updateDocumentVersionDto.versionType,
+        DocumentFileId: documentFile.id,
+        oldDocumentFileId: documentVersion.DocumentFileId,
+        versioningDate: new Date(),
+        versionNumber: documentVersion.versionNumber,
+      });
+    //
+    // const documentVersion = await this.documentVersionService.createNewVersion({
+    //   purposeChange: updateDocumentVersionDto.purposeChange,
+    //   versionType: updateDocumentVersionDto.versionType,
+    //   DocumentFileId: documentFile.id,
+    //   versioningDate: new Date(),
+    // });
+
+    // create the same document with new version
+    return await this.documentRepository.create({
+      DocumentMetadataId: document.DocumentMetadataId,
+      DocumentVersionId: newDocumentVersion.id,
+    });
   }
 
   update(id: number, updateDocumentDto: UpdateDocumentDto) {
