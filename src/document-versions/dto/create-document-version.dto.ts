@@ -1,10 +1,18 @@
-import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import {
+  IsDate,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
+import { VersionType } from '../enum';
 
 export class CreateDocumentVersionDto {
   @IsNotEmpty()
   @IsString()
-  versionNumber: string;
+  versionNumber?: string;
 
   @IsNotEmpty()
   @IsString()
@@ -14,6 +22,14 @@ export class CreateDocumentVersionDto {
   @Transform(({ value }) => new Date(value))
   @IsDate()
   versioningDate?: Date;
+
+  @IsNotEmpty()
+  @IsEnum(VersionType, {
+    message: `VersionType must be one of the following values: ${Object.values(
+      VersionType,
+    ).join(', ')}`,
+  })
+  versionType: VersionType;
 
   @IsNotEmpty()
   @IsUUID()

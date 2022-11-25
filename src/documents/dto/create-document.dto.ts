@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { VersionType } from '../../document-versions/enum';
 
 export class CreateDocumentDto {
   @IsNotEmpty()
@@ -22,8 +23,10 @@ export class CreateDocumentDto {
   contributors?: string;
 
   @IsNotEmpty()
-  @IsString()
-  versionNumber: string;
+  @IsEnum(VersionType, {
+    message: 'Version type must be either "draft" or "final"',
+  })
+  versionType: VersionType;
 
   @IsNotEmpty()
   @IsString()

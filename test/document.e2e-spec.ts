@@ -2,11 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import * as pactum from 'pactum';
+// import * as FormData from "form-data-lite";
 import { AuthDto } from '../src/auth/dto';
 import { CreateUserDto, UpdateUserDto } from '../src/users/dto';
 import { Roles } from '../src/users/enum';
 import { CreateDocumentDto } from '../src/documents/dto';
 import * as path from 'path';
+import { VersionType } from '../src/document-versions/enum';
 
 describe('DMS (e2e)', () => {
   let documentApp: INestApplication;
@@ -126,6 +128,10 @@ describe('DMS (e2e)', () => {
           baseDocumentPath,
           'Appendix one test.docx',
         );
+        //
+        // const formData = new FormData();
+        //
+        // formData.append('file', pathToFile);
 
         const createDocumentDto: CreateDocumentDto = {
           contributors: 'Phan',
@@ -133,18 +139,20 @@ describe('DMS (e2e)', () => {
           description: 'The appendix for the third milestone.',
           keywords: 'appendix milestone documentation',
           purposeChange: 'Created the appendix for the third milestone',
-          versionNumber: 'v 0.1',
+          versionType: VersionType.FINAL,
           title: 'Appendix one test',
         };
 
         it('should return a new document', function () {
-          return pactum
-            .spec()
-            .post('/documents')
-            .withBody({ ...createDocumentDto })
-            .withFile('document', pathToFile)
-            .withMultiPartFormData({ ...createDocumentDto })
-            .expectStatus(201);
+          return (
+            pactum
+              .spec()
+              .post('/documents')
+              // .withBody({ ...createDocumentDto })
+              .withFile('document', pathToFile)
+              .withMultiPartFormData({ ...createDocumentDto })
+              .expectStatus(201)
+          );
         });
       });
 
@@ -167,7 +175,7 @@ describe('DMS (e2e)', () => {
           description: 'A picture of a test table.',
           keywords: 'picture tests milestone documentation',
           purposeChange: 'Initial message for the test plan picture',
-          versionNumber: 'v 0.1',
+          versionType: VersionType.DRAFT,
           title: 'test-plan-template-excel',
         };
 

@@ -32,23 +32,32 @@ export class DocumentsService {
     createDocumentDto: CreateDocumentDto,
     file: Express.Multer.File,
   ) {
-    const documentVersion = await this.documentVersionService.createNewVersion(
-      createDocumentDto,
-      file,
-    );
-
     const documentFile =
-      await this.documentVersionService.documentFileService.getDocument({
-        documentFileId: documentVersion.DocumentFileId,
+      await this.documentVersionService.documentFileService.uploadDocument({
+        mimetype: file.mimetype,
+        originalFilename: file.originalname,
+        size: file.size,
+        newFilename: file.filename,
       });
 
-    if (!documentFile) throw new NotFoundException('Document File not Found!');
+    const documentVersion = await this.documentVersionService.createNewVersion({
+      purposeChange: createDocumentDto.purposeChange,
+      versionType: createDocumentDto.versionType,
+      DocumentFileId: documentFile.id,
+      versioningDate: new Date(),
+    });
 
     const documentMetadata =
-      await this.documentMetadataService.createDocumentMetadata(
-        createDocumentDto,
-        documentFile,
-      );
+      await this.documentMetadataService.createDocumentMetadata({
+        title: createDocumentDto.title,
+        description: createDocumentDto.description,
+        keywords: createDocumentDto.keywords,
+        creator: createDocumentDto.creator,
+        contributors: createDocumentDto.contributors,
+        type: documentFile.newFilename.split('.').pop(),
+        creationDate: new Date(),
+        format: documentFile.mimetype.split('/').pop(),
+      });
 
     return await this.documentRepository.create({
       DocumentMetadataId: documentMetadata.id,

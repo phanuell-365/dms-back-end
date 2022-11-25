@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 // import { CreateDocumentFileDto } from './dto/create-document-file.dto';
 import { CreateDocumentFileDto, UpdateDocumentFileDto } from './dto';
-import { CreateDocumentDto } from '../documents/dto';
 import { DOCUMENT_FILE_REPOSITORY } from './const';
 import { DocumentFile } from './entities';
 
@@ -28,17 +27,7 @@ export class DocumentFilesService {
     return documentFile;
   }
 
-  async uploadDocument(
-    createDocumentDto: CreateDocumentDto,
-    file: Express.Multer.File,
-  ) {
-    const createDocumentFileDto: CreateDocumentFileDto = {
-      mimetype: file.mimetype,
-      originalFilename: file.originalname,
-      newFilename: file.filename,
-      size: file.size,
-    };
-
+  async uploadDocument(createDocumentFileDto: CreateDocumentFileDto) {
     return await this.documentFileRepository.create({
       ...createDocumentFileDto,
     });

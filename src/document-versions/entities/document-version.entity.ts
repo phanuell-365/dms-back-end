@@ -7,6 +7,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { DocumentFile } from '../../document-files/entities';
+import { VersionType } from '../enum';
 
 @Table({
   paranoid: true,
@@ -29,19 +30,26 @@ export class DocumentVersion extends Model {
     allowNull: false,
     type: DataType.STRING,
   })
-  versionNumber: string;
+  purposeChange: string;
 
   @Column({
     allowNull: false,
     type: DataType.STRING,
   })
-  purposeChange: string;
+  versionNumber: string;
 
   @Column({
     allowNull: false,
     type: DataType.DATE,
   })
   versioningDate: Date;
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(VersionType),
+  })
+  versionType: VersionType;
 
   @ForeignKey(() => DocumentFile)
   @Column({

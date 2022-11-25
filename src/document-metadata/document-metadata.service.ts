@@ -1,9 +1,7 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { CreateDocumentMetadataDto, UpdateDocumentMetadataDto } from './dto';
-import { CreateDocumentDto } from '../documents/dto';
 import { DOCUMENT_METADATA_REPOSITORY } from './const';
 import { DocumentMetadata } from './entities';
-import { DocumentFile } from '../document-files/entities';
 
 @Injectable()
 export class DocumentMetadataService {
@@ -38,20 +36,8 @@ export class DocumentMetadataService {
   }
 
   async createDocumentMetadata(
-    createDocumentDto: CreateDocumentDto,
-    documentFile: DocumentFile,
+    createDocumentMetadataDto: CreateDocumentMetadataDto,
   ) {
-    const createDocumentMetadataDto: CreateDocumentMetadataDto = {
-      title: createDocumentDto.title,
-      creator: createDocumentDto.creator,
-      description: createDocumentDto.description,
-      keywords: createDocumentDto.keywords,
-      contributors: createDocumentDto?.contributors,
-      type: documentFile.newFilename.split('.').pop(),
-      creationDate: new Date(),
-      format: documentFile.mimetype.split('/').pop(),
-    };
-
     const documentMetadata = await this.getDocumentMetadata({
       title: createDocumentMetadataDto.title,
     });

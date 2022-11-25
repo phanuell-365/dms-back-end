@@ -38,3 +38,4 @@ lerna-debug.log*
 *.pem
 !/src/auth/keys/keys.services.ts
 /src/auth/keys/keys.services.js
+/src/assets/uploads/
