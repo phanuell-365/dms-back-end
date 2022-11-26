@@ -278,6 +278,12 @@ describe('DMS (e2e)', () => {
             .expectStatus(201);
         });
       });
+
+      describe('View Documents', function () {
+        it('should return an empty array', function () {
+          return pactum.spec().get('/documents').inspect().expectStatus(200);
+        });
+      });
     });
   });
 });

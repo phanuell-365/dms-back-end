@@ -8,6 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { DocumentFile } from '../../document-files/entities';
 import { VersionType } from '../enum';
+import { VersionStatus } from '../enum/version-status';
 
 @Table({
   paranoid: true,
@@ -50,6 +51,13 @@ export class DocumentVersion extends Model {
     values: Object.values(VersionType),
   })
   versionType: VersionType;
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: Object.values(VersionStatus),
+  })
+  versionStatus: VersionStatus;
 
   @ForeignKey(() => DocumentFile)
   @Column({

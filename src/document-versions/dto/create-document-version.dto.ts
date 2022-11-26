@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { VersionType } from '../enum';
+import { VersionStatus } from '../enum/version-status';
 
 export class CreateDocumentVersionDto {
   @IsNotEmpty()
@@ -30,6 +31,14 @@ export class CreateDocumentVersionDto {
     ).join(', ')}`,
   })
   versionType: VersionType;
+
+  @IsNotEmpty()
+  @IsEnum(VersionStatus, {
+    message: `VersionStatus must be one of the following values: ${Object.values(
+      VersionStatus,
+    ).join(', ')}`,
+  })
+  versionStatus?: VersionStatus;
 
   @IsNotEmpty()
   @IsUUID()

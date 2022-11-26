@@ -41,12 +41,13 @@ export class DocumentsService {
         newFilename: file.filename,
       });
 
-    const documentVersion = await this.documentVersionService.createNewVersion({
-      purposeChange: createDocumentDto.purposeChange,
-      versionType: createDocumentDto.versionType,
-      DocumentFileId: documentFile.id,
-      versioningDate: new Date(),
-    });
+    const documentVersion =
+      await this.documentVersionService.createDocumentVersion({
+        purposeChange: createDocumentDto.purposeChange,
+        versionType: createDocumentDto.versionType,
+        DocumentFileId: documentFile.id,
+        versioningDate: new Date(),
+      });
 
     const documentMetadata =
       await this.documentMetadataService.createDocumentMetadata({
@@ -111,7 +112,7 @@ export class DocumentsService {
 
     // create a new version of the document
     const newDocumentVersion =
-      await this.documentVersionService.createNewVersion({
+      await this.documentVersionService.upgradeDocumentVersion({
         purposeChange: updateDocumentVersionDto.purposeChange,
         versionType: updateDocumentVersionDto.versionType,
         DocumentFileId: documentFile.id,
