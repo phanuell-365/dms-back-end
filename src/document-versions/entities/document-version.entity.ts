@@ -9,6 +9,7 @@ import {
 import { DocumentFile } from '../../document-files/entities';
 import { VersionType } from '../enum';
 import { VersionStatus } from '../enum/version-status';
+import { Document } from '../../documents/entities';
 
 @Table({
   paranoid: true,
@@ -58,6 +59,12 @@ export class DocumentVersion extends Model {
     values: Object.values(VersionStatus),
   })
   versionStatus: VersionStatus;
+
+  @ForeignKey(() => DocumentFile)
+  DocumentId: string;
+
+  @BelongsTo(() => Document, 'DocumentId')
+  documentId: Document;
 
   @ForeignKey(() => DocumentFile)
   @Column({

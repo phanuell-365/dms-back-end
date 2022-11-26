@@ -6,7 +6,6 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
-import { DocumentVersion } from '../../document-versions/entities';
 import { DocumentMetadata } from '../../document-metadata/entities';
 
 @Table({
@@ -36,14 +35,4 @@ export class Document extends Model {
 
   @BelongsTo(() => DocumentMetadata, 'DocumentMetadataId')
   documentMetadata: DocumentMetadata;
-
-  @ForeignKey(() => DocumentVersion)
-  @Column({
-    allowNull: false,
-    type: DataType.UUID,
-  })
-  DocumentVersionId: string;
-
-  @BelongsTo(() => DocumentVersion, 'DocumentVersionId')
-  documentVersion: DocumentVersion;
 }

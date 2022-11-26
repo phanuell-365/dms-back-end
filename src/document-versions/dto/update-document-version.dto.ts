@@ -18,7 +18,7 @@ export class UpdateDocumentVersionDto extends PartialType(
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  versioningDate?: Date;
+  versioningDate: Date;
 
   @IsOptional()
   @IsEnum(VersionStatus, {
@@ -27,6 +27,10 @@ export class UpdateDocumentVersionDto extends PartialType(
     ).join(', ')}`,
   })
   versionStatus?: VersionStatus;
+
+  @IsOptional()
+  @IsUUID()
+  DocumentId: string;
 
   @IsOptional()
   @IsUUID()

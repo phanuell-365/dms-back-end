@@ -22,7 +22,7 @@ export class CreateDocumentVersionDto {
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   @IsDate()
-  versioningDate?: Date;
+  versioningDate: Date;
 
   @IsNotEmpty()
   @IsEnum(VersionType, {
@@ -42,7 +42,11 @@ export class CreateDocumentVersionDto {
 
   @IsNotEmpty()
   @IsUUID()
-  DocumentFileId?: string;
+  DocumentId: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  DocumentFileId: string;
 
   @IsNotEmpty()
   @IsUUID()

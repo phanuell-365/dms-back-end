@@ -220,7 +220,7 @@ describe('DMS (e2e)', () => {
       });
 
       describe('View Documents', function () {
-        it('should return an empty array', function () {
+        it('should return an array of documents', function () {
           return pactum.spec().get('/documents').inspect().expectStatus(200);
         });
       });
@@ -280,8 +280,118 @@ describe('DMS (e2e)', () => {
       });
 
       describe('View Documents', function () {
-        it('should return an empty array', function () {
+        it('should return an array of documents', function () {
           return pactum.spec().get('/documents').inspect().expectStatus(200);
+        });
+      });
+
+      describe('Upload a new major version', function () {
+        // upload a new version of Sample output.pdf
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: UpdateDocumentDto = {
+          purposeChange:
+            'Added another new major version of the sample pdf document',
+          versionType: VersionType.MAJOR,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .inspect()
+            .expectStatus(201);
+        });
+      });
+
+      describe('Upload a new major version', function () {
+        // upload a new version of Sample output.pdf
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: UpdateDocumentDto = {
+          purposeChange:
+            'Added another new minor version of the sample pdf document',
+          versionType: VersionType.MINOR,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .inspect()
+            .expectStatus(201);
+        });
+      });
+
+      describe('Upload a new major version', function () {
+        // upload a new version of Sample output.pdf
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: UpdateDocumentDto = {
+          purposeChange: 'Made the final change to the sample pdf document',
+          versionType: VersionType.FINAL,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .inspect()
+            .expectStatus(201);
+        });
+      });
+
+      describe('Upload a new major version', function () {
+        // upload a new version of Sample output.pdf
+        const pathToFile = path.join(
+          __dirname,
+          baseDocumentPath,
+          'Sample output.pdf',
+        );
+
+        const createDocumentDto: UpdateDocumentDto = {
+          purposeChange: 'Made the first change to the sample pdf document',
+          versionType: VersionType.MINOR,
+          title: 'Sample output',
+        };
+
+        it('should return a new document', function () {
+          return pactum
+            .spec()
+            .post('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .withBody({ ...createDocumentDto })
+            .withFile('document', pathToFile)
+            .withMultiPartFormData({ ...createDocumentDto })
+            .inspect()
+            .expectStatus(201);
         });
       });
     });

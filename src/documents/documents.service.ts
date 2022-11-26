@@ -41,14 +41,6 @@ export class DocumentsService {
         newFilename: file.filename,
       });
 
-    const documentVersion =
-      await this.documentVersionService.createDocumentVersion({
-        purposeChange: createDocumentDto.purposeChange,
-        versionType: createDocumentDto.versionType,
-        DocumentFileId: documentFile.id,
-        versioningDate: new Date(),
-      });
-
     const documentMetadata =
       await this.documentMetadataService.createDocumentMetadata({
         title: createDocumentDto.title,
@@ -61,10 +53,19 @@ export class DocumentsService {
         format: documentFile.mimetype.split('/').pop(),
       });
 
-    return await this.documentRepository.create({
+    const newDocument = await this.documentRepository.create({
       DocumentMetadataId: documentMetadata.id,
-      DocumentVersionId: documentVersion.id,
     });
+
+    await this.documentVersionService.createDocumentVersion({
+      purposeChange: createDocumentDto.purposeChange,
+      versionType: createDocumentDto.versionType,
+      DocumentFileId: documentFile.id,
+      versioningDate: new Date(),
+      DocumentId: newDocument.id,
+    });
+
+    return newDocument;
   }
 
   async findAll() {
@@ -95,7 +96,7 @@ export class DocumentsService {
     // look for the latest version of the document
     const documentVersion =
       await this.documentVersionService.getPreviousVersion({
-        documentVersionId: document.DocumentVersionId,
+        documentId,
       });
 
     if (!documentVersion) {
@@ -113,6 +114,7 @@ export class DocumentsService {
     // create a new version of the document
     const newDocumentVersion =
       await this.documentVersionService.upgradeDocumentVersion({
+        DocumentId: documentId,
         purposeChange: updateDocumentVersionDto.purposeChange,
         versionType: updateDocumentVersionDto.versionType,
         DocumentFileId: documentFile.id,
