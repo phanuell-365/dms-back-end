@@ -24,6 +24,7 @@ import { DOCUMENT_FILE_MAX_SIZE } from './const';
 import { UpdateDocumentVersionDto } from '../document-versions/dto';
 import { ParseDocumentVersionPipePipe } from '../document-versions/pipes/parse-document-version-pipe.pipe';
 import { VersionStatus } from '../document-versions/enum/version-status';
+import { UpdateDocumentMetadataDto } from '../document-metadata/dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -75,6 +76,37 @@ export class DocumentsController {
     return this.documentsService.findAll();
   }
 
+  // controller methods for document metadata
+  @Get('metadata')
+  findAllDocumentMetadata() {
+    console.error('findAllDocumentMetadata');
+    return this.documentsService.findAllDocumentMetadata();
+  }
+
+  @Get(':id')
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.documentsService.findOne(id);
+  }
+
+  @Get(':id/metadata')
+  findDocumentMetadata(@Param('id', new ParseUUIDPipe()) id: string) {
+    console.error('findAllDocumentMetadata');
+    return this.documentsService.findDocumentMetadata(id);
+  }
+
+  @Patch(':id/metadata')
+  updateDocumentMetadata(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateDocumentMetadataDto: UpdateDocumentMetadataDto,
+  ) {
+    return this.documentsService.updateDocumentMetadata(
+      id,
+      updateDocumentMetadataDto,
+    );
+  }
+
+  // controllers for document versions
+
   @Get('versions/search')
   findAllCurrentVersions() {
     return this.documentsService.findAllCurrentVersions();
@@ -96,11 +128,6 @@ export class DocumentsController {
       id,
       status as VersionStatus,
     );
-  }
-
-  @Get(':id')
-  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.documentsService.findOne(id);
   }
 
   @Post(':id/versions')
@@ -148,6 +175,8 @@ export class DocumentsController {
       file,
     );
   }
+
+  // controllers for documents
 
   @Patch(':id')
   update(

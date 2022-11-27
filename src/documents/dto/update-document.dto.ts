@@ -28,9 +28,9 @@ export class UpdateDocumentDto extends PartialType(CreateDocumentDto) {
   @IsEnum(VersionType, {
     message: 'Version type must be either "draft" or "final"',
   })
-  versionType: VersionType;
+  versionType?: VersionType;
 
   @IsOptional()
   @IsString()
-  purposeChange: string;
+  purposeChange?: string;
 }

@@ -1,4 +1,9 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDocumentMetadataDto, UpdateDocumentMetadataDto } from './dto';
 import { DOCUMENT_METADATA_REPOSITORY } from './const';
 import { DocumentMetadata } from './entities';
@@ -49,6 +54,37 @@ export class DocumentMetadataService {
     return await this.documentMetadataRepository.create({
       ...createDocumentMetadataDto,
     });
+  }
+
+  async updateDocumentMetadata(
+    documentMetadataId: string,
+    updateDocumentMetadataDto: UpdateDocumentMetadataDto,
+  ) {
+    const documentMetadata = await this.getDocumentMetadata({
+      documentMetadataId,
+    });
+
+    if (!documentMetadata) {
+      throw new NotFoundException('Document metadata not found!');
+    }
+
+    // check if a document with the title already exists
+    const documentMetadataTitle = await this.getDocumentMetadata({
+      title: updateDocumentMetadataDto.title,
+    });
+
+    if (
+      documentMetadataTitle &&
+      documentMetadataTitle.id !== documentMetadata.id
+    ) {
+      throw new ConflictException('A document with the title already exists!');
+    }
+
+    return await documentMetadata.update(updateDocumentMetadataDto);
+  }
+
+  async findAllDocumentMetadata() {
+    return await this.documentMetadataRepository.findAll();
   }
 
   findAll() {

@@ -21,7 +21,7 @@ export class UpdateDocumentMetadataDto extends PartialType(
 
   @IsOptional()
   @IsString()
-  keywords?: string[];
+  keywords?: string;
 
   @IsOptional()
   @IsString()

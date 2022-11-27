@@ -5,7 +5,7 @@ import { DocumentVersionsService } from '../document-versions/document-versions.
 import { DOCUMENT_NOT_FOUND_MESSAGE, DOCUMENT_REPOSITORY } from './const';
 import { Document } from './entities';
 import { UpdateDocumentVersionDto } from '../document-versions/dto';
-import { VersionStatus } from '../document-versions/enum/version-status';
+import { VersionStatus } from '../document-versions/enum';
 
 @Injectable()
 export class DocumentsService {
@@ -176,6 +176,45 @@ export class DocumentsService {
       DocumentMetadataId: document.DocumentMetadataId,
       DocumentVersionId: newDocumentVersion.id,
     });
+  }
+
+  async findDocumentMetadata(documentId: string) {
+    const document = await this.getDocument({ documentId });
+
+    if (!document) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    return await this.documentMetadataService.getDocumentMetadata({
+      documentMetadataId: document.DocumentMetadataId,
+    });
+  }
+
+  async findAllDocumentMetadata() {
+    console.error('findAllDocumentMetadata');
+    return await this.documentMetadataService.findAllDocumentMetadata();
+  }
+
+  async updateDocumentMetadata(
+    documentId: string,
+    updateDocumentDto: UpdateDocumentDto,
+  ) {
+    const document = await this.getDocument({ documentId });
+
+    if (!document) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    return await this.documentMetadataService.updateDocumentMetadata(
+      document.DocumentMetadataId,
+      {
+        title: updateDocumentDto.title,
+        description: updateDocumentDto.description,
+        keywords: updateDocumentDto.keywords,
+        creator: updateDocumentDto.creator,
+        contributors: updateDocumentDto.contributors,
+      },
+    );
   }
 
   update(id: number, updateDocumentDto: UpdateDocumentDto) {
