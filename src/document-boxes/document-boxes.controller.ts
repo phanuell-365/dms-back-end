@@ -8,22 +8,20 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { DocumentOutboxesService } from './document-outboxes.service';
-import { CreateDocumentOutboxDto, UpdateDocumentOutboxDto } from './dto';
+import { DocumentBoxesService } from './document-boxes.service';
+import { CreateDocumentBoxDto, UpdateDocumentBoxDto } from './dto';
 import { GetUser } from '../auth/decorator';
 import { User } from '../users/entities';
 import { JwtAuthGuard } from '../auth/guards';
 
 @UseGuards(JwtAuthGuard)
 @Controller('documents/outboxes')
-export class DocumentOutboxesController {
-  constructor(
-    private readonly documentOutboxesService: DocumentOutboxesService,
-  ) {}
+export class DocumentBoxesController {
+  constructor(private readonly documentOutboxesService: DocumentBoxesService) {}
 
   @Post()
   create(
-    @Body() createDocumentOutboxDto: CreateDocumentOutboxDto,
+    @Body() createDocumentOutboxDto: CreateDocumentBoxDto,
     @GetUser() user: User,
   ) {
     return this.documentOutboxesService.create(createDocumentOutboxDto, user);
@@ -42,7 +40,7 @@ export class DocumentOutboxesController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateDocumentSentboxDto: UpdateDocumentOutboxDto,
+    @Body() updateDocumentSentboxDto: UpdateDocumentBoxDto,
   ) {
     return this.documentOutboxesService.update(+id, updateDocumentSentboxDto);
   }

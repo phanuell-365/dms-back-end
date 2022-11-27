@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateDocumentOutboxDto, UpdateDocumentOutboxDto } from './dto';
+import { CreateDocumentBoxDto, UpdateDocumentBoxDto } from './dto';
 import { User } from '../users/entities';
-import { OutboxMetadataService } from '../outbox-metadata/outbox-metadata.service';
+import { DocumentBoxMetadataService } from '../document-box-metadata/document-box-metadata.service';
 import { DOCUMENT_OUTBOXES_REPOSITORY } from './const';
 import { DocumentOutbox } from './entities';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
 
 @Injectable()
-export class DocumentOutboxesService {
+export class DocumentBoxesService {
   constructor(
-    private readonly outboxMetadataService: OutboxMetadataService,
+    private readonly outboxMetadataService: DocumentBoxMetadataService,
     @Inject(DOCUMENT_OUTBOXES_REPOSITORY)
     private documentOutboxesRepository: typeof DocumentOutbox,
     private readonly usersService: UsersService,
@@ -45,7 +45,7 @@ export class DocumentOutboxesService {
     return true;
   }
 
-  async create(createDocumentOutboxDto: CreateDocumentOutboxDto, user: User) {
+  async create(createDocumentOutboxDto: CreateDocumentBoxDto, user: User) {
     const outboxMetadata =
       await this.outboxMetadataService.createOutboxMetadata({
         title: createDocumentOutboxDto.title,
@@ -85,7 +85,7 @@ export class DocumentOutboxesService {
     return `This action returns a #${id} documentSentbox`;
   }
 
-  update(id: number, updateDocumentSentboxDto: UpdateDocumentOutboxDto) {
+  update(id: number, updateDocumentSentboxDto: UpdateDocumentBoxDto) {
     return `This action updates a #${id} documentSentbox`;
   }
 

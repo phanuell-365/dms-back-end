@@ -6,11 +6,11 @@ import { DocumentsModule } from './documents/documents.module';
 import { DocumentMetadataModule } from './document-metadata/document-metadata.module';
 import { DocumentVersionsModule } from './document-versions/document-versions.module';
 import { DocumentFilesModule } from './document-files/document-files.module';
-import { DocumentOutboxesModule } from './document-outboxes/document-outboxes.module';
+import { DocumentBoxesModule } from './document-boxes/document-boxes.module';
 import { DocumentInboxesModule } from './document-inboxes/document-inboxes.module';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
-import { OutboxMetadataModule } from './outbox-metadata/outbox-metadata.module';
+import { DocumentBoxMetadataModule } from './document-box-metadata/document-box-metadata.module';
 
 @Module({
   imports: [
@@ -19,11 +19,11 @@ import { OutboxMetadataModule } from './outbox-metadata/outbox-metadata.module';
     DocumentMetadataModule,
     DocumentVersionsModule,
     DocumentFilesModule,
-    DocumentOutboxesModule,
+    DocumentBoxesModule,
     DocumentInboxesModule,
     AuthModule,
     DatabaseModule,
-    OutboxMetadataModule,
+    DocumentBoxMetadataModule,
   ],
   controllers: [AppController],
   providers: [AppService],

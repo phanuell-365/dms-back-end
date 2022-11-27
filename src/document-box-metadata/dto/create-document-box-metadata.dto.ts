@@ -1,7 +1,7 @@
 import { IsDate, IsNotEmpty, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class CreateOutboxMetadataDto {
+export class CreateDocumentBoxMetadataDto {
   @IsNotEmpty()
   @IsString()
   title: string;

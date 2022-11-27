@@ -7,7 +7,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from '../../users/entities';
 import { Document } from '../../documents/entities';
-import { OutboxMetadata } from '../../outbox-metadata/entities';
+import { OutboxMetadata } from '../../document-box-metadata/entities';
 
 @Table({
   paranoid: true,

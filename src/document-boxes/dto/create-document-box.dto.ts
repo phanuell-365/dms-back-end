@@ -6,7 +6,7 @@ import {
   IsUUID,
 } from 'class-validator';
 
-export class CreateDocumentOutboxDto {
+export class CreateDocumentBoxDto {
   @IsNotEmpty()
   @IsString()
   title: string;

@@ -1,10 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateDocumentOutboxDto } from './create-document-outbox.dto';
+import { CreateDocumentBoxDto } from './create-document-box.dto';
 import { IsArray, IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class UpdateDocumentOutboxDto extends PartialType(
-  CreateDocumentOutboxDto,
-) {
+export class UpdateDocumentBoxDto extends PartialType(CreateDocumentBoxDto) {
   @IsOptional()
   @IsString()
   title?: string;

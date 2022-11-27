@@ -1,10 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateOutboxMetadataDto } from './create-outbox-metadata.dto';
+import { CreateDocumentBoxMetadataDto } from './create-document-box-metadata.dto';
 import { IsDate, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class UpdateOutboxMetadataDto extends PartialType(
-  CreateOutboxMetadataDto,
+export class UpdateDocumentBoxMetadataDto extends PartialType(
+  CreateDocumentBoxMetadataDto,
 ) {
   @IsOptional()
   @IsString()

@@ -9,7 +9,7 @@ import { Roles } from '../src/users/enum';
 import * as path from 'path';
 import { CreateDocumentDto } from '../src/documents/dto';
 import { VersionType } from '../src/document-versions/enum';
-import { CreateDocumentOutboxDto } from '../src/document-outboxes/dto';
+import { CreateDocumentBoxDto } from '../src/document-boxes/dto';
 
 describe('Outbox and Inbox App (e2e)', function () {
   let outboxInboxApp: INestApplication;
@@ -242,7 +242,7 @@ describe('Outbox and Inbox App (e2e)', function () {
   describe('Outbox and Inbox modules', function () {
     describe('Outbox Module', function () {
       describe('Send one document to a user', function () {
-        const createDocumentOutboxDto: CreateDocumentOutboxDto = {
+        const createDocumentOutboxDto: CreateDocumentBoxDto = {
           keywords: 'appendix milestone documentation',
           title: 'The appendix for the third milestone.',
           documentIds: ['$S{AppendixOneId}'],
@@ -262,7 +262,7 @@ describe('Outbox and Inbox App (e2e)', function () {
       });
 
       describe('Send two documents to a user', function () {
-        const createDocumentOutboxDto: CreateDocumentOutboxDto = {
+        const createDocumentOutboxDto: CreateDocumentBoxDto = {
           keywords: 'appendix milestone documentation',
           title: 'The appendix for the third milestone.',
           documentIds: ['$S{AppendixOneId}', '$S{TestPlanId}'],
@@ -282,7 +282,7 @@ describe('Outbox and Inbox App (e2e)', function () {
       });
 
       describe('Send three documents to two users', function () {
-        const createDocumentOutboxDto: CreateDocumentOutboxDto = {
+        const createDocumentOutboxDto: CreateDocumentBoxDto = {
           keywords: 'appendix milestone documentation',
           title: 'The appendix for the third milestone.',
           documentIds: [
@@ -306,7 +306,7 @@ describe('Outbox and Inbox App (e2e)', function () {
       });
 
       describe('Send three documents to three users', function () {
-        const createDocumentOutboxDto: CreateDocumentOutboxDto = {
+        const createDocumentOutboxDto: CreateDocumentBoxDto = {
           keywords: 'appendix milestone documentation',
           title: 'The appendix for the third milestone.',
           documentIds: [

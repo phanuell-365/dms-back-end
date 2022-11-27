@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { DocumentOutboxesService } from './document-outboxes.service';
-import { DocumentOutboxesController } from './document-outboxes.controller';
-import { outboxMetadataProvider } from '../outbox-metadata/outbox-metadata.provider';
+import { DocumentBoxesService } from './document-boxes.service';
+import { DocumentBoxesController } from './document-boxes.controller';
+import { documentBoxMetadataProvider } from '../document-box-metadata/document-box-metadata.provider';
 import { usersProvider } from '../users/users.provider';
 import { documentProvider } from '../documents/document.provider';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
 import { UsersModule } from '../users/users.module';
 import { DocumentsModule } from '../documents/documents.module';
-import { OutboxMetadataService } from '../outbox-metadata/outbox-metadata.service';
-import { OutboxMetadataModule } from '../outbox-metadata/outbox-metadata.module';
-import { documentOutboxesProvider } from './document-outboxes.provider';
+import { DocumentBoxMetadataService } from '../document-box-metadata/document-box-metadata.service';
+import { DocumentBoxMetadataModule } from '../document-box-metadata/document-box-metadata.module';
+import { documentBoxesProvider } from './document-boxes.provider';
 import { DocumentMetadataService } from '../document-metadata/document-metadata.service';
 import { documentMetadataProvider } from '../document-metadata/document-metadata.provider';
 import { DocumentVersionsService } from '../document-versions/document-versions.service';
@@ -25,25 +25,25 @@ import { documentFilesProvider } from '../document-files/document-files.provider
     UsersModule,
     DocumentsModule,
     DocumentFilesModule,
-    OutboxMetadataModule,
+    DocumentBoxMetadataModule,
     DocumentVersionsModule,
   ],
-  controllers: [DocumentOutboxesController],
+  controllers: [DocumentBoxesController],
   providers: [
-    DocumentOutboxesService,
+    DocumentBoxesService,
     DocumentMetadataService,
     DocumentFilesService,
     UsersService,
     DocumentsService,
-    OutboxMetadataService,
+    DocumentBoxMetadataService,
     DocumentVersionsService,
-    ...outboxMetadataProvider,
+    ...documentBoxMetadataProvider,
     ...usersProvider,
     ...documentProvider,
-    ...documentOutboxesProvider,
+    ...documentBoxesProvider,
     ...documentMetadataProvider,
     ...documentVersionsProvider,
     ...documentFilesProvider,
   ],
 })
-export class DocumentOutboxesModule {}
+export class DocumentBoxesModule {}

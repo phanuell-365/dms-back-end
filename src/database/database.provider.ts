@@ -8,8 +8,8 @@ import { Document } from '../documents/entities';
 import { DocumentVersion } from '../document-versions/entities';
 import { DocumentMetadata } from '../document-metadata/entities';
 import { DocumentFile } from '../document-files/entities';
-import { DocumentOutbox } from '../document-outboxes/entities';
-import { OutboxMetadata } from '../outbox-metadata/entities';
+import { DocumentOutbox } from '../document-boxes/entities';
+import { OutboxMetadata } from '../document-box-metadata/entities';
 
 export const databaseProvider = [
   {

@@ -1,16 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreateOutboxMetadataDto, UpdateOutboxMetadataDto } from './dto';
+import {
+  CreateDocumentBoxMetadataDto,
+  UpdateDocumentBoxMetadataDto,
+} from './dto';
 import { OUTBOX_METADATA_REPOSITORY } from './const';
 import { OutboxMetadata } from './entities';
 
 @Injectable()
-export class OutboxMetadataService {
+export class DocumentBoxMetadataService {
   constructor(
     @Inject(OUTBOX_METADATA_REPOSITORY)
     private outboxMetadataRepository: typeof OutboxMetadata,
   ) {}
 
-  async createOutboxMetadata(createOutboxMetadataDto: CreateOutboxMetadataDto) {
+  async createOutboxMetadata(
+    createOutboxMetadataDto: CreateDocumentBoxMetadataDto,
+  ) {
     return await this.outboxMetadataRepository.create({
       ...createOutboxMetadataDto,
     });
@@ -24,7 +29,7 @@ export class OutboxMetadataService {
     return `This action returns a #${id} outboxMetadatum`;
   }
 
-  update(id: number, updateOutboxMetadatumDto: UpdateOutboxMetadataDto) {
+  update(id: number, updateOutboxMetadatumDto: UpdateDocumentBoxMetadataDto) {
     return `This action updates a #${id} outboxMetadatum`;
   }
 
