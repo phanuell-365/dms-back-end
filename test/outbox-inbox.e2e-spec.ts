@@ -256,7 +256,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .post('/documents/outboxes')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
             .expectStatus(201);
         });
       });
@@ -276,7 +275,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .post('/documents/outboxes')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
             .expectStatus(201);
         });
       });
@@ -300,7 +298,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .post('/documents/outboxes')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
             .expectStatus(201);
         });
       });

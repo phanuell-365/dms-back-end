@@ -6,6 +6,7 @@ import { DOCUMENT_OUTBOXES_REPOSITORY } from './const';
 import { DocumentOutbox } from './entities';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
+import { MarkStatus } from '../document-box-metadata/enum';
 
 @Injectable()
 export class DocumentBoxesService {
@@ -66,6 +67,8 @@ export class DocumentBoxesService {
         return Promise.all(
           createDocumentOutboxDto.documentIds.map(async (documentId) => {
             return await this.documentOutboxesRepository.create({
+              markStatus: MarkStatus.UNREAD,
+              readAt: null,
               RecipientId: recipientId,
               DocumentId: documentId,
               SenderId: user.id,

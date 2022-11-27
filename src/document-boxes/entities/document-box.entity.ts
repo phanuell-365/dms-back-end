@@ -1,6 +1,7 @@
 import {
   BelongsTo,
   Column,
+  CreatedAt,
   DataType,
   Model,
   Table,
@@ -8,6 +9,7 @@ import {
 import { User } from '../../users/entities';
 import { Document } from '../../documents/entities';
 import { OutboxMetadata } from '../../document-box-metadata/entities';
+import { MarkStatus } from '../../document-box-metadata/enum';
 
 @Table({
   paranoid: true,
@@ -26,6 +28,22 @@ export class DocumentOutbox extends Model {
     unique: true,
   })
   public id: string;
+
+  @Column({
+    allowNull: false,
+    type: DataType.ENUM,
+    values: [MarkStatus.UNREAD, MarkStatus.READ],
+  })
+  public markStatus: MarkStatus;
+
+  @CreatedAt
+  sentAt: Date;
+
+  @Column({
+    allowNull: true,
+    type: DataType.DATE,
+  })
+  readAt: Date;
 
   @Column({
     allowNull: false,
