@@ -10,7 +10,7 @@ export class UsersJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.PUB_KEY,
+      secretOrKey: Buffer.from(process.env.PUB_KEY, 'base64').toString('ascii'),
       algorithms: ['RS256'],
     });
   }

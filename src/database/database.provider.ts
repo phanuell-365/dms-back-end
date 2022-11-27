@@ -8,6 +8,8 @@ import { Document } from '../documents/entities';
 import { DocumentVersion } from '../document-versions/entities';
 import { DocumentMetadata } from '../document-metadata/entities';
 import { DocumentFile } from '../document-files/entities';
+import { DocumentOutbox } from '../document-outboxes/entities';
+import { OutboxMetadata } from '../outbox-metadata/entities';
 
 export const databaseProvider = [
   {
@@ -36,6 +38,8 @@ export const databaseProvider = [
         DocumentVersion,
         DocumentMetadata,
         DocumentFile,
+        DocumentOutbox,
+        OutboxMetadata,
       ]);
 
       try {

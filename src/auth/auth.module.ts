@@ -13,9 +13,16 @@ import { usersProvider } from '../users/users.provider';
     UsersModule,
     JwtModule.registerAsync({
       useFactory: () => {
+        const privateKey = Buffer.from(process.env.PRV_KEY, 'base64').toString(
+          'ascii',
+        );
+        const publicKey = Buffer.from(process.env.PUB_KEY, 'base64').toString(
+          'ascii',
+        );
+
         const options: JwtModuleOptions = {
-          privateKey: process.env.PRV_KEY,
-          publicKey: process.env.PUB_KEY,
+          privateKey,
+          publicKey,
           signOptions: {
             algorithm: 'RS256',
             expiresIn: EXPIRES_IN,
