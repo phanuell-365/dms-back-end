@@ -36,6 +36,27 @@ export class DocumentVersionsService {
     return documentVersion;
   }
 
+  async getCurrentVersion(options: {
+    documentId?: string;
+    versionStatus?: string;
+  }) {
+    let documentVersion: DocumentVersion;
+
+    if (options.documentId) {
+      documentVersion = await this.documentVersionRepository.findOne({
+        where: {
+          DocumentId: options.documentId,
+          versionStatus: options.versionStatus,
+        },
+      });
+
+      if (!documentVersion) {
+        return false;
+      }
+    }
+    return documentVersion;
+  }
+
   async getDocumentVersion(options: { documentVersionId?: string }) {
     let documentVersion: DocumentVersion;
 
@@ -49,6 +70,19 @@ export class DocumentVersionsService {
       }
     }
     return documentVersion;
+  }
+
+  async getDocumentVersions(options: { documentId?: string }) {
+    let documentVersions: DocumentVersion[];
+
+    if (options.documentId) {
+      documentVersions = await this.documentVersionRepository.findAll({
+        where: {
+          DocumentId: options.documentId,
+        },
+      });
+    }
+    return documentVersions;
   }
 
   async createDocumentVersion(
@@ -127,8 +161,6 @@ export class DocumentVersionsService {
         },
       },
     );
-
-    console.error({ currentDocumentVersion });
 
     if (!currentDocumentVersion) {
       throw new NotFoundException(

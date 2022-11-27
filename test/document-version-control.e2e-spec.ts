@@ -10,7 +10,7 @@ import { CreateDocumentDto, UpdateDocumentDto } from '../src/documents/dto';
 import * as path from 'path';
 import { VersionType } from '../src/document-versions/enum';
 
-describe('DMS (e2e)', () => {
+describe('DMS Version Control (e2e)', () => {
   let documentApp: INestApplication;
 
   jest.setTimeout(15000);
@@ -214,7 +214,6 @@ describe('DMS (e2e)', () => {
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
             .stores('SampleOutputDocumentId', 'id')
-            .inspect()
             .expectStatus(201);
         });
       });
@@ -247,7 +246,6 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
-            .inspect()
             .expectStatus(201);
         });
       });
@@ -274,7 +272,6 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
-            .inspect()
             .expectStatus(201);
         });
       });
@@ -308,8 +305,18 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
-            .inspect()
             .expectStatus(201);
+        });
+      });
+
+      describe('View Documents', function () {
+        it('should return an array of documents', function () {
+          return pactum
+            .spec()
+            .get('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .inspect()
+            .expectStatus(200);
         });
       });
 
@@ -336,8 +343,18 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
-            .inspect()
             .expectStatus(201);
+        });
+      });
+
+      describe('View Documents', function () {
+        it('should return an array of documents', function () {
+          return pactum
+            .spec()
+            .get('/documents/{id}/versions')
+            .inspect()
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .expectStatus(200);
         });
       });
 
@@ -363,8 +380,18 @@ describe('DMS (e2e)', () => {
             .withBody({ ...createDocumentDto })
             .withFile('document', pathToFile)
             .withMultiPartFormData({ ...createDocumentDto })
-            .inspect()
             .expectStatus(201);
+        });
+      });
+
+      describe('View Documents', function () {
+        it('should return an array of documents', function () {
+          return pactum
+            .spec()
+            .get('/documents/{id}/versions')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .inspect()
+            .expectStatus(200);
         });
       });
 
@@ -392,6 +419,28 @@ describe('DMS (e2e)', () => {
             .withMultiPartFormData({ ...createDocumentDto })
             .inspect()
             .expectStatus(201);
+        });
+      });
+
+      describe('View Documents', function () {
+        it('should return an array of documents', function () {
+          return pactum
+            .spec()
+            .get('/documents/{id}/versions')
+            .inspect()
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .expectStatus(200);
+        });
+      });
+
+      describe('View current document version', function () {
+        it('should return the current document version', function () {
+          return pactum
+            .spec()
+            .get('/documents/{id}/versions/search?status=current')
+            .withPathParams('id', '$S{SampleOutputDocumentId}')
+            .inspect()
+            .expectStatus(200);
         });
       });
     });

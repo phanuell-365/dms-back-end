@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -21,6 +22,8 @@ import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { DOCUMENT_FILE_MAX_SIZE } from './const';
 import { UpdateDocumentVersionDto } from '../document-versions/dto';
+import { ParseDocumentVersionPipePipe } from '../document-versions/pipes/parse-document-version-pipe.pipe';
+import { VersionStatus } from '../document-versions/enum/version-status';
 
 @Controller('documents')
 export class DocumentsController {
@@ -70,6 +73,22 @@ export class DocumentsController {
   @Get()
   findAll() {
     return this.documentsService.findAll();
+  }
+
+  @Get(':id/versions')
+  getDocumentVersions(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.documentsService.getDocumentVersions(id);
+  }
+
+  @Get(':id/versions/search')
+  getCurrentDocumentVersion(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('status', new ParseDocumentVersionPipePipe()) status: string,
+  ) {
+    return this.documentsService.getCurrentDocumentVersion(
+      id,
+      status as VersionStatus,
+    );
   }
 
   @Get(':id')

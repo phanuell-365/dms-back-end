@@ -5,6 +5,7 @@ import { DocumentVersionsService } from '../document-versions/document-versions.
 import { DOCUMENT_NOT_FOUND_MESSAGE, DOCUMENT_REPOSITORY } from './const';
 import { Document } from './entities';
 import { UpdateDocumentVersionDto } from '../document-versions/dto';
+import { VersionStatus } from '../document-versions/enum/version-status';
 
 @Injectable()
 export class DocumentsService {
@@ -70,6 +71,42 @@ export class DocumentsService {
 
   async findAll() {
     return await this.documentRepository.findAll();
+  }
+
+  async getDocumentVersions(documentId: string) {
+    const document = await this.getDocument({ documentId });
+
+    if (!document) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    return await this.documentVersionService.getDocumentVersions({
+      documentId,
+    });
+  }
+
+  async getCurrentDocumentVersion(
+    documentId: string,
+    versionStatus: VersionStatus,
+  ) {
+    const document = await this.getDocument({ documentId });
+
+    if (!document) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    const documentVersion = await this.documentVersionService.getCurrentVersion(
+      {
+        documentId,
+        versionStatus,
+      },
+    );
+
+    if (!documentVersion) {
+      throw new NotFoundException(DOCUMENT_NOT_FOUND_MESSAGE);
+    }
+
+    return documentVersion;
   }
 
   async findOne(documentId: string) {
