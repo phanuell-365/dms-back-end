@@ -73,6 +73,10 @@ export class DocumentsService {
     return await this.documentRepository.findAll();
   }
 
+  async findAllCurrentVersions() {
+    return await this.documentVersionService.findAllCurrentVersions();
+  }
+
   async getDocumentVersions(documentId: string) {
     const document = await this.getDocument({ documentId });
 

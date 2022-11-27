@@ -213,6 +213,14 @@ export class DocumentVersionsService {
     return `This action returns all documentVersions`;
   }
 
+  async findAllCurrentVersions() {
+    return await this.documentVersionRepository.findAll({
+      where: {
+        versionStatus: VersionStatus.CURRENT,
+      },
+    });
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} documentVersion`;
   }

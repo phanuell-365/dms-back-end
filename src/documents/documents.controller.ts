@@ -75,6 +75,13 @@ export class DocumentsController {
     return this.documentsService.findAll();
   }
 
+  @Get('versions/search')
+  findAllCurrentVersions() {
+    return this.documentsService.findAllCurrentVersions();
+  }
+
+  // Path: src/documents/documents.service.ts
+
   @Get(':id/versions')
   getDocumentVersions(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.documentsService.getDocumentVersions(id);

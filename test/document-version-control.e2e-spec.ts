@@ -443,6 +443,16 @@ describe('DMS Version Control (e2e)', () => {
             .expectStatus(200);
         });
       });
+
+      describe('View all current document version', function () {
+        it('should return all current document version', function () {
+          return pactum
+            .spec()
+            .get('/documents/versions/search?status=current')
+            .inspect()
+            .expectStatus(200);
+        });
+      });
     });
   });
 });
