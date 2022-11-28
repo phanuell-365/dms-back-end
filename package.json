@@ -18,7 +18,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --watch --detectOpenHandles --config ./test/jest-e2e.json"
+    "test:e2e": "jest --watch --detectOpenHandles --config ./test/jest-e2e.json",
+    "test:e2e:app": "jest --detectOpenHandles --config ./test/jest-e2e.json --testPathPattern=app",
+    "test:e2e:document-metadata": "jest --detectOpenHandles --config ./test/jest-e2e.json --testPathPattern=document-metadata",
+    "test:e2e:document-version": "jest --detectOpenHandles --config ./test/jest-e2e.json --testPathPattern=document-version",
+    "test:e2e:outbox-inbox": "jest --detectOpenHandles --config ./test/jest-e2e.json --testPathPattern=outbox-inbox"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
