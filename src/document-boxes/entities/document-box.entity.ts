@@ -19,7 +19,7 @@ import { MarkStatus } from '../../document-box-metadata/enum';
     },
   },
 })
-export class DocumentOutbox extends Model {
+export class DocumentBox extends Model {
   @Column({
     primaryKey: true,
     type: DataType.UUID,
