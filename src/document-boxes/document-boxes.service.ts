@@ -3,7 +3,7 @@ import { CreateDocumentBoxDto, UpdateDocumentBoxDto } from './dto';
 import { User } from '../users/entities';
 import { DocumentBoxMetadataService } from '../document-box-metadata/document-box-metadata.service';
 import { DOCUMENT_OUTBOXES_REPOSITORY } from './const';
-import { DocumentOutbox } from './entities';
+import { DocumentBox } from './entities';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
 import { MarkStatus } from '../document-box-metadata/enum';
@@ -13,7 +13,7 @@ export class DocumentBoxesService {
   constructor(
     private readonly outboxMetadataService: DocumentBoxMetadataService,
     @Inject(DOCUMENT_OUTBOXES_REPOSITORY)
-    private documentOutboxesRepository: typeof DocumentOutbox,
+    private documentOutboxesRepository: typeof DocumentBox,
     private readonly usersService: UsersService,
     private readonly documentService: DocumentsService,
   ) {}
