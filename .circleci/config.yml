@@ -28,7 +28,11 @@ jobs:
           pkg-manager: npm
       - run:
           name: Run tests
-          command: npm run test:e2e
+          command: 
+            npm run test:e2e:app
+            npm run test:e2e:document-version
+            npm run test:e2e:document-metadata
+            npm run test:e2e:outbox-inbox
 
 workflows:
   # Below is the definition of your workflow.
