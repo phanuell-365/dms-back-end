@@ -13,6 +13,12 @@ export class DocumentBoxMetadataService {
     private outboxMetadataRepository: typeof OutboxMetadata,
   ) {}
 
+  async getDocumentBoxMetadata({ outboxMetadataId }) {
+    return await this.outboxMetadataRepository.findOne({
+      where: { id: outboxMetadataId },
+    });
+  }
+
   async createOutboxMetadata(
     createOutboxMetadataDto: CreateDocumentBoxMetadataDto,
   ) {

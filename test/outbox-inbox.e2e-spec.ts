@@ -253,7 +253,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return a new outbox', function () {
           return pactum
             .spec()
-            .post('/documents/outboxes')
+            .post('/documents/boxes/send')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(201);
@@ -272,7 +272,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return a new outbox', function () {
           return pactum
             .spec()
-            .post('/documents/outboxes')
+            .post('/documents/boxes/send')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(201);
@@ -295,7 +295,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return a new outbox', function () {
           return pactum
             .spec()
-            .post('/documents/outboxes')
+            .post('/documents/boxes/send')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(201);
@@ -318,11 +318,26 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return a new outbox', function () {
           return pactum
             .spec()
-            .post('/documents/outboxes')
+            .post('/documents/boxes/send')
             .withJson({ ...createDocumentOutboxDto })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .inspect()
             .expectStatus(201);
+        });
+      });
+    });
+  });
+
+  describe('Sent and Received documents', function () {
+    describe('Sent documents', function () {
+      describe('Get all sent documents', function () {
+        it('should return all sent documents by the authorized user', function () {
+          return pactum
+            .spec()
+            .get('/documents/boxes/sent')
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .inspect()
+            .expectStatus(200);
         });
       });
     });
