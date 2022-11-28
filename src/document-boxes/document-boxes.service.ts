@@ -3,7 +3,7 @@ import { CreateDocumentBoxDto, UpdateDocumentBoxDto } from './dto';
 import { User } from '../users/entities';
 import { DocumentBoxMetadataService } from '../document-box-metadata/document-box-metadata.service';
 import { DOCUMENT_OUTBOXES_REPOSITORY } from './const';
-import { DocumentBox } from './entities';
+import { DocumentOutbox } from './entities';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
 import { MarkStatus } from '../document-box-metadata/enum';
@@ -11,9 +11,9 @@ import { MarkStatus } from '../document-box-metadata/enum';
 @Injectable()
 export class DocumentBoxesService {
   constructor(
-    private readonly documentBoxMetadataService: DocumentBoxMetadataService,
+    private readonly outboxMetadataService: DocumentBoxMetadataService,
     @Inject(DOCUMENT_OUTBOXES_REPOSITORY)
-    private documentOutboxesRepository: typeof DocumentBox,
+    private documentOutboxesRepository: typeof DocumentOutbox,
     private readonly usersService: UsersService,
     private readonly documentService: DocumentsService,
   ) {}
@@ -48,7 +48,7 @@ export class DocumentBoxesService {
 
   async create(createDocumentOutboxDto: CreateDocumentBoxDto, user: User) {
     const outboxMetadata =
-      await this.documentBoxMetadataService.createOutboxMetadata({
+      await this.outboxMetadataService.createOutboxMetadata({
         title: createDocumentOutboxDto.title,
         content: createDocumentOutboxDto.content,
         keywords: createDocumentOutboxDto.keywords,
@@ -76,80 +76,6 @@ export class DocumentBoxesService {
             });
           }),
         );
-      }),
-    );
-  }
-
-  async findAllSentDocumentsByUser(user: User) {
-    // get all documentIds that the user has sent for each sent document-box
-    const sentDocumentBoxes = await this.documentOutboxesRepository.findAll({
-      where: { SenderId: user.id },
-    });
-
-    // for each sent document-box, get all the documentIds, recipientIds, and outboxMetadataId
-    const sentDocumentsBox = await Promise.all(
-      sentDocumentBoxes.map(async (sentDocumentBox) => {
-        const documentIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['DocumentId'],
-        });
-
-        // remove duplicates
-        const uniqueDocumentIds = [
-          ...new Set(documentIds.map((documentId) => documentId.DocumentId)),
-        ];
-
-        const recipientIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['RecipientId'],
-        });
-
-        // remove duplicates
-        const uniqueRecipientIds = [
-          ...new Set(
-            recipientIds.map((recipientId) => recipientId.RecipientId),
-          ),
-        ];
-
-        return {
-          documentIds: uniqueDocumentIds,
-          recipientIds: uniqueRecipientIds,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-        };
-      }),
-    );
-
-    // for each sent document-box, remove duplicates
-    const uniqueSentDocumentsBox = [
-      ...new Set(
-        sentDocumentsBox.map(
-          (sentDocumentBox) => sentDocumentBox.outboxMetadataId,
-        ),
-      ),
-    ];
-
-    return await Promise.all(
-      uniqueSentDocumentsBox.map(async (outboxMetadataId) => {
-        return {
-          outboxMetadata:
-            await this.documentBoxMetadataService.getDocumentBoxMetadata({
-              outboxMetadataId,
-            }),
-          documentIds: sentDocumentsBox.find(
-            (sentDocumentBox) =>
-              sentDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).documentIds,
-          recipientIds: sentDocumentsBox.find(
-            (sentDocumentBox) =>
-              sentDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).recipientIds,
-        };
       }),
     );
   }

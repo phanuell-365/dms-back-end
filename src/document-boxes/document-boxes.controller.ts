@@ -15,31 +15,26 @@ import { User } from '../users/entities';
 import { JwtAuthGuard } from '../auth/guards';
 
 @UseGuards(JwtAuthGuard)
-@Controller('documents/boxes')
+@Controller('documents/outboxes')
 export class DocumentBoxesController {
-  constructor(private readonly documentBoxesService: DocumentBoxesService) {}
+  constructor(private readonly documentOutboxesService: DocumentBoxesService) {}
 
-  @Post('/send')
+  @Post()
   create(
     @Body() createDocumentOutboxDto: CreateDocumentBoxDto,
     @GetUser() user: User,
   ) {
-    return this.documentBoxesService.create(createDocumentOutboxDto, user);
-  }
-
-  @Get('sent')
-  findAllSentDocuments(@GetUser() user: User) {
-    return this.documentBoxesService.findAllSentDocumentsByUser(user);
+    return this.documentOutboxesService.create(createDocumentOutboxDto, user);
   }
 
   @Get()
   findAll() {
-    return this.documentBoxesService.findAll();
+    return this.documentOutboxesService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.documentBoxesService.findOne(+id);
+    return this.documentOutboxesService.findOne(+id);
   }
 
   @Patch(':id')
@@ -47,11 +42,11 @@ export class DocumentBoxesController {
     @Param('id') id: string,
     @Body() updateDocumentSentboxDto: UpdateDocumentBoxDto,
   ) {
-    return this.documentBoxesService.update(+id, updateDocumentSentboxDto);
+    return this.documentOutboxesService.update(+id, updateDocumentSentboxDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.documentBoxesService.remove(+id);
+    return this.documentOutboxesService.remove(+id);
   }
 }
