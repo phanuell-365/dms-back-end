@@ -16,6 +16,7 @@ import { User } from '../users/entities';
 import { JwtAuthGuard } from '../auth/guards';
 import { ParseMarkStatusPipePipe } from './pipes';
 import { MarkStatus } from '../document-box-metadata/enum';
+import { MarkAsReadDto } from './dto/mark-as-read.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('documents/boxes')
@@ -81,6 +82,12 @@ export class DocumentBoxesController {
     user: User,
   ) {
     return this.documentBoxesService.findAllReceivedDocumentBoxesByUser(user);
+  }
+
+  @Patch('received')
+  markAsRead(@Body() markAsReadDto: MarkAsReadDto, @GetUser() user: User) {
+    console.error({ markAsReadDto });
+    return this.documentBoxesService.markAsRead(markAsReadDto, user);
   }
 
   @Get()

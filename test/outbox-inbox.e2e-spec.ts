@@ -10,6 +10,7 @@ import * as path from 'path';
 import { CreateDocumentDto } from '../src/documents/dto';
 import { VersionType } from '../src/document-versions/enum';
 import { CreateDocumentBoxDto } from '../src/document-boxes/dto';
+import { MarkAsReadDto } from '../src/document-boxes/dto/mark-as-read.dto';
 
 describe('Outbox and Inbox App (e2e)', function () {
   let outboxInboxApp: INestApplication;
@@ -351,7 +352,6 @@ describe('Outbox and Inbox App (e2e)', function () {
               documentMetadataId: firstSentDocumentMetadataId,
             })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
             .expectStatus(200);
         });
       });
@@ -371,13 +371,13 @@ describe('Outbox and Inbox App (e2e)', function () {
             .post('/auth/users/login')
             .withJson(secondUserAuthDto)
             .expectStatus(201)
-            .inspect()
             .stores('userTwoAccessToken', 'access_token')
             .toss();
         });
       });
 
       let firstReceivedDocumentMetadataId: string;
+      let secondReceivedDocumentMetadataId: string;
 
       describe('Get all received documents', function () {
         it('should return all received documents by Miley Cyrus', async function () {
@@ -386,10 +386,10 @@ describe('Outbox and Inbox App (e2e)', function () {
             .get('/documents/boxes/received')
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
             .expectStatus(200)
-            .inspect()
             .toss();
 
           firstReceivedDocumentMetadataId = res.body[0].outboxMetadata.id;
+          secondReceivedDocumentMetadataId = res.body[1].outboxMetadata.id;
         });
 
         it('should return all received documents by Admin', async function () {
@@ -397,7 +397,6 @@ describe('Outbox and Inbox App (e2e)', function () {
           return pactum
             .spec()
             .get('/documents/boxes/received')
-            .inspect()
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(200)
             .toss();
@@ -412,7 +411,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .get('/documents/boxes/received/{documentMetadataId}')
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
-            .inspect()
             .withPathParams({
               documentMetadataId: firstReceivedDocumentMetadataId,
             })
@@ -426,7 +424,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .get('/documents/boxes/received/search?markStatus=unread')
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
-            .inspect()
             .expectStatus(200);
         });
       });
@@ -435,8 +432,35 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return an array of read received documents', function () {
           return pactum
             .spec()
-            .inspect()
             .get('/documents/boxes/received/search?markStatus=read')
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
+            .expectStatus(200);
+        });
+      });
+
+      describe('Mark one as read', function () {
+        it('should mark one received document as read', function () {
+          const markAsReadDto: MarkAsReadDto = {
+            documentMetadataIds: [secondReceivedDocumentMetadataId],
+            all: false,
+          };
+          return pactum
+            .spec()
+            .inspect()
+            .patch('/documents/boxes/received')
+            .withBody({ ...markAsReadDto })
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
+            .expectStatus(200);
+        });
+      });
+
+      describe('Mark all as read', function () {
+        it('should mark all received documents and return them', function () {
+          return pactum
+            .spec()
+            .patch('/documents/boxes/received')
+            .withBody({ all: true, documentMetadataIds: [] } as MarkAsReadDto)
+            .inspect()
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
             .expectStatus(200);
         });

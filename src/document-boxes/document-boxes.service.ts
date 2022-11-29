@@ -15,7 +15,7 @@ import {
   SentDocumentBox,
   SentDocumentBoxes,
 } from './interfaces';
-import { Roles } from '../users/enum';
+import { MarkAsReadDto } from './dto/mark-as-read.dto';
 
 @Injectable()
 export class DocumentBoxesService {
@@ -349,14 +349,6 @@ export class DocumentBoxesService {
       },
     );
 
-    if (user.role === Roles.ADMIN) {
-      console.error({
-        receivedDocumentBoxes: receivedDocumentBoxes.map(
-          (value) => value.dataValues,
-        ),
-        length: receivedDocumentBoxes.length,
-      });
-    }
     if (receivedDocumentBoxes.length <= 0) {
       return receivedDocumentBoxes;
     }
@@ -437,6 +429,45 @@ export class DocumentBoxesService {
       sentOrReceived: 'received',
       userId: user.id,
     });
+  }
+
+  async markAsRead(markAsReadDto: MarkAsReadDto, user: User) {
+    if (markAsReadDto.all) {
+      const documentBoxes = await this.documentOutboxesRepository.findAll({
+        where: {
+          RecipientId: user.id,
+        },
+      });
+
+      return await Promise.all(
+        documentBoxes.map(async (documentBox) => {
+          documentBox.readAt = new Date();
+          documentBox.markStatus = MarkStatus.READ;
+
+          return await documentBox.save();
+        }),
+      );
+    } else if (markAsReadDto.documentMetadataIds) {
+      console.error({ markAsReadDto });
+      return await Promise.all(
+        markAsReadDto.documentMetadataIds.map(async (documentMetadataId) => {
+          const documentBox = await this.documentOutboxesRepository.findOne({
+            where: {
+              OutboxMetadataId: documentMetadataId,
+              RecipientId: user.id,
+              markStatus: MarkStatus.UNREAD,
+            },
+          });
+
+          documentBox.markStatus = MarkStatus.READ;
+          documentBox.readAt = new Date();
+
+          return await documentBox.save();
+        }),
+      );
+    } else {
+      return [];
+    }
   }
 
   findAll() {
