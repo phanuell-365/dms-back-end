@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { DocumentBoxesService } from './document-boxes.service';
@@ -13,6 +14,8 @@ import { CreateDocumentBoxDto, UpdateDocumentBoxDto } from './dto';
 import { GetUser } from '../auth/decorator';
 import { User } from '../users/entities';
 import { JwtAuthGuard } from '../auth/guards';
+import { ParseMarkStatusPipePipe } from './pipes';
+import { MarkStatus } from '../document-box-metadata/enum';
 
 @UseGuards(JwtAuthGuard)
 @Controller('documents/boxes')
@@ -46,6 +49,17 @@ export class DocumentBoxesController {
     user: User,
   ) {
     return this.documentBoxesService.findAllSentDocumentBoxesByUser(user);
+  }
+
+  @Get('received/search')
+  findAllReceivedReadOrUnreadDocuments(
+    @Query('markStatus', new ParseMarkStatusPipePipe()) markStatus: MarkStatus,
+    @GetUser() user: User,
+  ) {
+    return this.documentBoxesService.findAllReceivedReadOrUnreadDocuments(
+      markStatus,
+      user,
+    );
   }
 
   @Get('received/:documentMetadataId')

@@ -7,6 +7,15 @@ import { DocumentBox } from './entities';
 import { UsersService } from '../users/users.service';
 import { DocumentsService } from '../documents/documents.service';
 import { MarkStatus } from '../document-box-metadata/enum';
+import {
+  IsInstanceOfReceivedDocumentBoxes,
+  IsInstanceOfSentDocumentBoxes,
+  ReceivedDocumentBox,
+  ReceivedDocumentBoxes,
+  SentDocumentBox,
+  SentDocumentBoxes,
+} from './interfaces';
+import { Roles } from '../users/enum';
 
 @Injectable()
 export class DocumentBoxesService {
@@ -141,6 +150,119 @@ export class DocumentBoxesService {
     } else return;
   }
 
+  async getSentOrReceivedDocumentBoxes(options: {
+    sentOrReceivedDocumentBoxes: DocumentBox[];
+    sentOrReceived: 'sent' | 'received';
+    userId: string;
+  }) {
+    if (options.sentOrReceived === 'sent') {
+      return await Promise.all(
+        options.sentOrReceivedDocumentBoxes.map(async (sentDocumentBox) => {
+          return {
+            documentIds: await this.getDocumentIds({
+              senderOrRecipientId: options.userId,
+              outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+              sentOrReceived: options.sentOrReceived,
+            }),
+            recipientIds: await this.getSenderOrRecipientIds({
+              senderOrRecipientId: options.userId,
+              outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+              sentOrReceived: options.sentOrReceived,
+            }),
+            outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+          } as SentDocumentBoxes;
+        }),
+      );
+    } else if (options.sentOrReceived === 'received') {
+      return await Promise.all(
+        options.sentOrReceivedDocumentBoxes.map(async (receivedDocumentBox) => {
+          return {
+            documentIds: await this.getDocumentIds({
+              senderOrRecipientId: options.userId,
+              outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+              sentOrReceived: options.sentOrReceived,
+            }),
+            senderIds: await this.getSenderOrRecipientIds({
+              senderOrRecipientId: options.userId,
+              outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+              sentOrReceived: options.sentOrReceived,
+            }),
+            outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+          } as ReceivedDocumentBoxes;
+        }),
+      );
+    } else return;
+  }
+
+  async getSentOrReceivedDocumentBoxesByUser(options: {
+    sentOrReceivedDocumentBoxes: DocumentBox[];
+    sentOrReceived: 'sent' | 'received';
+    userId: string;
+  }) {
+    const sentOrReceivedBox = await this.getSentOrReceivedDocumentBoxes({
+      sentOrReceivedDocumentBoxes: options.sentOrReceivedDocumentBoxes,
+      sentOrReceived: options.sentOrReceived,
+      userId: options.userId,
+    });
+
+    let receivedDocumentBox: ReceivedDocumentBoxes[];
+
+    if (IsInstanceOfReceivedDocumentBoxes(sentOrReceivedBox[0])) {
+      receivedDocumentBox = <ReceivedDocumentBoxes[]>sentOrReceivedBox;
+    }
+
+    let sentDocumentBox: SentDocumentBoxes[];
+
+    if (IsInstanceOfSentDocumentBoxes(sentOrReceivedBox[0])) {
+      sentDocumentBox = <SentDocumentBoxes[]>sentOrReceivedBox;
+    }
+    // for each sent document-box, remove duplicates
+    const uniqueSentOrReceivedDocumentsBox = [
+      ...new Set(
+        sentOrReceivedBox.map(
+          (sentOrReceivedDocumentBox) =>
+            sentOrReceivedDocumentBox.outboxMetadataId,
+        ),
+      ),
+    ];
+
+    return await Promise.all(
+      uniqueSentOrReceivedDocumentsBox.map(async (outboxMetadataId) => {
+        if (options.sentOrReceived === 'sent') {
+          return {
+            outboxMetadata:
+              await this.documentBoxMetadataService.getDocumentBoxMetadata({
+                outboxMetadataId,
+              }),
+            documentIds: sentDocumentBox.find(
+              (sentDocumentBox) =>
+                sentDocumentBox.outboxMetadataId === outboxMetadataId,
+            ).documentIds,
+            recipientIds: sentDocumentBox.find(
+              (sentDocumentBox) =>
+                sentDocumentBox.outboxMetadataId === outboxMetadataId,
+            ).recipientIds,
+          } as SentDocumentBox;
+        } else if (options.sentOrReceived === 'received') {
+          return {
+            outboxMetadata:
+              await this.documentBoxMetadataService.getDocumentBoxMetadata({
+                outboxMetadataId,
+              }),
+            documentIds: receivedDocumentBox.find(
+              (receivedDocumentBox) =>
+                receivedDocumentBox.outboxMetadataId === outboxMetadataId,
+            ).documentIds,
+            senderIds: receivedDocumentBox.find(
+              (receivedDocumentBox) =>
+                receivedDocumentBox.outboxMetadataId === outboxMetadataId,
+            ).senderIds,
+          } as ReceivedDocumentBox;
+        }
+      }),
+    );
+  }
+
   // services for controllers
 
   async create(createDocumentOutboxDto: CreateDocumentBoxDto, user: User) {
@@ -183,36 +305,23 @@ export class DocumentBoxesService {
       where: { SenderId: user.id, OutboxMetadataId: documentBoxMetadataId },
     });
 
-    // for each sent document-box, get all the documentIds, recipientIds, and outboxMetadataId
-    const sentDocumentsBox = await Promise.all(
-      sentDocumentBoxes.map(async (sentDocumentBox) => {
-        const uniqueDocumentIds = await this.getDocumentIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'sent',
-        });
-
-        const uniqueRecipientIds = await this.getSenderOrRecipientIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'sent',
-        });
-
-        return {
-          documentIds: uniqueDocumentIds,
-          recipientIds: uniqueRecipientIds,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-        };
-      }),
+    const sentDocumentsBox = <Awaited<SentDocumentBoxes>[]>(
+      await this.getSentOrReceivedDocumentBoxes({
+        sentOrReceivedDocumentBoxes: sentDocumentBoxes,
+        sentOrReceived: 'sent',
+        userId: user.id,
+      })
     );
+
+    const [sentDocumentBox] = sentDocumentsBox;
 
     return {
       outboxMetadata:
         await this.documentBoxMetadataService.getDocumentBoxMetadata({
-          outboxMetadataId: sentDocumentsBox[0].outboxMetadataId,
+          outboxMetadataId: sentDocumentBox.outboxMetadataId,
         }),
-      documentIds: sentDocumentsBox[0].documentIds,
-      recipientIds: sentDocumentsBox[0].recipientIds,
+      documentIds: sentDocumentBox.documentIds,
+      recipientIds: sentDocumentBox.recipientIds,
     };
   }
 
@@ -222,56 +331,15 @@ export class DocumentBoxesService {
       where: { SenderId: user.id },
     });
 
-    // for each sent document-box, get all the documentIds, recipientIds, and outboxMetadataId
-    const sentDocumentsBox = await Promise.all(
-      sentDocumentBoxes.map(async (sentDocumentBox) => {
-        const uniqueDocumentIds = await this.getDocumentIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'sent',
-        });
+    if (sentDocumentBoxes.length <= 0) {
+      return sentDocumentBoxes;
+    }
 
-        const uniqueRecipientIds = await this.getSenderOrRecipientIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'sent',
-        });
-
-        return {
-          documentIds: uniqueDocumentIds,
-          recipientIds: uniqueRecipientIds,
-          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
-        };
-      }),
-    );
-
-    // for each sent document-box, remove duplicates
-    const uniqueSentDocumentsBox = [
-      ...new Set(
-        sentDocumentsBox.map(
-          (sentDocumentBox) => sentDocumentBox.outboxMetadataId,
-        ),
-      ),
-    ];
-
-    return await Promise.all(
-      uniqueSentDocumentsBox.map(async (outboxMetadataId) => {
-        return {
-          outboxMetadata:
-            await this.documentBoxMetadataService.getDocumentBoxMetadata({
-              outboxMetadataId,
-            }),
-          documentIds: sentDocumentsBox.find(
-            (sentDocumentBox) =>
-              sentDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).documentIds,
-          recipientIds: sentDocumentsBox.find(
-            (sentDocumentBox) =>
-              sentDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).recipientIds,
-        };
-      }),
-    );
+    return await this.getSentOrReceivedDocumentBoxesByUser({
+      sentOrReceivedDocumentBoxes: sentDocumentBoxes,
+      sentOrReceived: 'sent',
+      userId: user.id,
+    });
   }
 
   async findAllReceivedDocumentBoxesByUser(user: User) {
@@ -281,56 +349,23 @@ export class DocumentBoxesService {
       },
     );
 
-    // for each received document-box, get all the documentIds, senderIds, and outboxMetadataId
-    const receivedDocumentsBox = await Promise.all(
-      receivedDocumentBoxes.map(async (receivedDocumentBox) => {
-        const uniqueDocumentIds = await this.getDocumentIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'received',
-        });
-
-        const uniqueSenderIds = await this.getSenderOrRecipientIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'received',
-        });
-
-        return {
-          documentIds: uniqueDocumentIds,
-          senderIds: uniqueSenderIds,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-        };
-      }),
-    );
-
-    // for each received document-box, remove duplicates
-    const uniqueReceivedDocumentsBox = [
-      ...new Set(
-        receivedDocumentsBox.map(
-          (receivedDocumentBox) => receivedDocumentBox.outboxMetadataId,
+    if (user.role === Roles.ADMIN) {
+      console.error({
+        receivedDocumentBoxes: receivedDocumentBoxes.map(
+          (value) => value.dataValues,
         ),
-      ),
-    ];
+        length: receivedDocumentBoxes.length,
+      });
+    }
+    if (receivedDocumentBoxes.length <= 0) {
+      return receivedDocumentBoxes;
+    }
 
-    return Promise.all(
-      uniqueReceivedDocumentsBox.map(async (outboxMetadataId) => {
-        return {
-          outboxMetadata:
-            await this.documentBoxMetadataService.getDocumentBoxMetadata({
-              outboxMetadataId,
-            }),
-          documentIds: receivedDocumentsBox.find(
-            (receivedDocumentBox) =>
-              receivedDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).documentIds,
-          senderIds: receivedDocumentsBox.find(
-            (receivedDocumentBox) =>
-              receivedDocumentBox.outboxMetadataId === outboxMetadataId,
-          ).senderIds,
-        };
-      }),
-    );
+    return await this.getSentOrReceivedDocumentBoxesByUser({
+      sentOrReceivedDocumentBoxes: receivedDocumentBoxes,
+      sentOrReceived: 'received',
+      userId: user.id,
+    });
   }
 
   async findOneReceivedDocumentBoxByUser(
@@ -346,36 +381,62 @@ export class DocumentBoxesService {
       },
     );
 
-    const receivedDocumentsBox = await Promise.all(
-      receivedDocumentBoxes.map(async (receivedDocumentBox) => {
-        const uniqueDocumentIds = await this.getDocumentIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+    if (receivedDocumentBoxes.length > 0) {
+      const receivedDocumentsBox = <Awaited<ReceivedDocumentBoxes>[]>(
+        await this.getSentOrReceivedDocumentBoxes({
+          sentOrReceivedDocumentBoxes: receivedDocumentBoxes,
           sentOrReceived: 'received',
-        });
+          userId: user.id,
+        })
+      );
 
-        const uniqueSenderIds = await this.getSenderOrRecipientIds({
-          senderOrRecipientId: user.id,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          sentOrReceived: 'received',
-        });
+      // mark the received document box as read
+      const [theReceivedDocument] = receivedDocumentBoxes;
 
-        return {
-          documentIds: uniqueDocumentIds,
-          senderIds: uniqueSenderIds,
-          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-        };
-      }),
-    );
+      if (theReceivedDocument.markStatus === MarkStatus.UNREAD) {
+        theReceivedDocument.markStatus = MarkStatus.READ;
+        theReceivedDocument.readAt = new Date();
+        await theReceivedDocument.save();
+      }
 
-    return {
-      outboxMetadata:
-        await this.documentBoxMetadataService.getDocumentBoxMetadata({
-          outboxMetadataId: receivedDocumentsBox[0].outboxMetadataId,
-        }),
-      documentsId: receivedDocumentsBox[0].documentIds,
-      senderIds: receivedDocumentsBox[0].senderIds,
-    };
+      const [receivedDocumentBox] = receivedDocumentsBox;
+
+      return {
+        outboxMetadata:
+          await this.documentBoxMetadataService.getDocumentBoxMetadata({
+            outboxMetadataId: receivedDocumentBox.outboxMetadataId,
+          }),
+        documentsId: receivedDocumentBox.documentIds,
+        senderIds: receivedDocumentBox.senderIds,
+      };
+    } else
+      return {
+        outboxMetadata: {},
+        documentsId: [],
+        senderIds: [],
+      };
+  }
+
+  async findAllReceivedReadOrUnreadDocuments(
+    markStatus: MarkStatus,
+    user: User,
+  ) {
+    const unreadReceivedDocumentBoxes: DocumentBox[] =
+      await this.documentOutboxesRepository.findAll({
+        where: {
+          RecipientId: user.id,
+          markStatus,
+        },
+      });
+
+    if (unreadReceivedDocumentBoxes.length <= 0) {
+      return unreadReceivedDocumentBoxes;
+    }
+    return await this.getSentOrReceivedDocumentBoxesByUser({
+      sentOrReceivedDocumentBoxes: unreadReceivedDocumentBoxes,
+      sentOrReceived: 'received',
+      userId: user.id,
+    });
   }
 
   findAll() {

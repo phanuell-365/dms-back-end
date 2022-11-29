@@ -51,8 +51,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .expectStatus(201)
             .stores('accessToken', 'access_token')
             .toss();
-
-          console.log({ body: res.body });
         });
       });
 
@@ -293,15 +291,12 @@ describe('Outbox and Inbox App (e2e)', function () {
         };
 
         it('should return a new outbox', function () {
-          return (
-            pactum
-              .spec()
-              .post('/documents/boxes/send')
-              .withJson({ ...createDocumentOutboxDto })
-              // .inspect()
-              .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-              .expectStatus(201)
-          );
+          return pactum
+            .spec()
+            .post('/documents/boxes/send')
+            .withJson({ ...createDocumentOutboxDto })
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .expectStatus(201);
         });
       });
 
@@ -319,15 +314,12 @@ describe('Outbox and Inbox App (e2e)', function () {
         };
 
         it('should return a new outbox', function () {
-          return (
-            pactum
-              .spec()
-              .post('/documents/boxes/send')
-              .withJson({ ...createDocumentOutboxDto })
-              .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-              // .inspect()
-              .expectStatus(201)
-          );
+          return pactum
+            .spec()
+            .post('/documents/boxes/send')
+            .withJson({ ...createDocumentOutboxDto })
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .expectStatus(201);
         });
       });
     });
@@ -340,9 +332,9 @@ describe('Outbox and Inbox App (e2e)', function () {
         it('should return all sent documents by the authorized user', async function () {
           const res = await pactum
             .spec()
+            .inspect()
             .get('/documents/boxes/sent')
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
             .expectStatus(200)
             .toss();
 
@@ -379,6 +371,7 @@ describe('Outbox and Inbox App (e2e)', function () {
             .post('/auth/users/login')
             .withJson(secondUserAuthDto)
             .expectStatus(201)
+            .inspect()
             .stores('userTwoAccessToken', 'access_token')
             .toss();
         });
@@ -392,8 +385,8 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .get('/documents/boxes/received')
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
-            .inspect()
             .expectStatus(200)
+            .inspect()
             .toss();
 
           firstReceivedDocumentMetadataId = res.body[0].outboxMetadata.id;
@@ -404,8 +397,8 @@ describe('Outbox and Inbox App (e2e)', function () {
           return pactum
             .spec()
             .get('/documents/boxes/received')
-            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .inspect()
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(200)
             .toss();
 
@@ -419,10 +412,32 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .get('/documents/boxes/received/{documentMetadataId}')
             .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
+            .inspect()
             .withPathParams({
               documentMetadataId: firstReceivedDocumentMetadataId,
             })
+            .expectStatus(200);
+        });
+      });
+
+      describe('Get All unread received documents', function () {
+        it('should return an array of unread received documents', function () {
+          return pactum
+            .spec()
+            .get('/documents/boxes/received/search?markStatus=unread')
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
             .inspect()
+            .expectStatus(200);
+        });
+      });
+
+      describe('Get All read received documents', function () {
+        it('should return an array of read received documents', function () {
+          return pactum
+            .spec()
+            .inspect()
+            .get('/documents/boxes/received/search?markStatus=read')
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
             .expectStatus(200);
         });
       });
