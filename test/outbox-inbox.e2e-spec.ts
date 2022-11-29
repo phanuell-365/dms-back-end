@@ -293,13 +293,15 @@ describe('Outbox and Inbox App (e2e)', function () {
         };
 
         it('should return a new outbox', function () {
-          return pactum
-            .spec()
-            .post('/documents/boxes/send')
-            .withJson({ ...createDocumentOutboxDto })
-            .inspect()
-            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .expectStatus(201);
+          return (
+            pactum
+              .spec()
+              .post('/documents/boxes/send')
+              .withJson({ ...createDocumentOutboxDto })
+              // .inspect()
+              .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+              .expectStatus(201)
+          );
         });
       });
 
@@ -317,13 +319,15 @@ describe('Outbox and Inbox App (e2e)', function () {
         };
 
         it('should return a new outbox', function () {
-          return pactum
-            .spec()
-            .post('/documents/boxes/send')
-            .withJson({ ...createDocumentOutboxDto })
-            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
-            .inspect()
-            .expectStatus(201);
+          return (
+            pactum
+              .spec()
+              .post('/documents/boxes/send')
+              .withJson({ ...createDocumentOutboxDto })
+              .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+              // .inspect()
+              .expectStatus(201)
+          );
         });
       });
     });
@@ -351,7 +355,9 @@ describe('Outbox and Inbox App (e2e)', function () {
           return pactum
             .spec()
             .get('/documents/boxes/sent/{documentMetadataId}')
-            .withPathParams({ documentMetadataId: firstSentDocumentMetadataId })
+            .withPathParams({
+              documentMetadataId: firstSentDocumentMetadataId,
+            })
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .inspect()
             .expectStatus(200);
@@ -372,7 +378,6 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .post('/auth/users/login')
             .withJson(secondUserAuthDto)
-            .inspect()
             .expectStatus(201)
             .stores('userTwoAccessToken', 'access_token')
             .toss();

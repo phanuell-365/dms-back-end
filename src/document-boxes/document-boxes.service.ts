@@ -18,6 +18,8 @@ export class DocumentBoxesService {
     private readonly documentService: DocumentsService,
   ) {}
 
+  // helper functions
+
   async validateRecipientIds(recipientIds: string[]) {
     // for each recipientId, check if it exists in the database
     recipientIds.map(async (recipientId) => {
@@ -39,6 +41,107 @@ export class DocumentBoxesService {
     });
     return true;
   }
+
+  /**
+   * @desc Finds all documentIds that match the specified options in the options object. It then removes any duplicate ids.
+   * @param options An object to specify the options for the search for the document ids.
+   * @return {Promise<string[]>} An array of unique document ids.
+   */
+  async getDocumentIds(options: {
+    senderOrRecipientId?: string;
+    outboxMetadataId?: string;
+    sentOrReceived: 'sent' | 'received';
+  }) {
+    let documentIds: DocumentBox[];
+    if (options.sentOrReceived === 'sent') {
+      if (options.outboxMetadataId) {
+        documentIds = await this.documentOutboxesRepository.findAll({
+          where: {
+            SenderId: options.senderOrRecipientId,
+            OutboxMetadataId: options.outboxMetadataId,
+          },
+          attributes: ['DocumentId'],
+        });
+      } else {
+        documentIds = await this.documentOutboxesRepository.findAll({
+          where: {
+            SenderId: options.senderOrRecipientId,
+          },
+          attributes: ['DocumentId'],
+        });
+      }
+    } else if (options.sentOrReceived === 'received') {
+      if (options.outboxMetadataId) {
+        documentIds = await this.documentOutboxesRepository.findAll({
+          where: {
+            RecipientId: options.senderOrRecipientId,
+            OutboxMetadataId: options.outboxMetadataId,
+          },
+          attributes: ['DocumentId'],
+        });
+      } else {
+        documentIds = await this.documentOutboxesRepository.findAll({
+          where: {
+            RecipientId: options.senderOrRecipientId,
+          },
+          attributes: ['DocumentId'],
+        });
+      }
+    } else {
+      return;
+    }
+
+    return [...new Set(documentIds.map((documentId) => documentId.DocumentId))];
+  }
+
+  /**
+   * @desc Finds all sender ids or recipient ids that match the specified options in the `options` object. It then removes any duplicate ids.
+   * @param options An objet to specify the options for the search for the sender or the recipient ids.
+   * @return {Promise<string[]>} An array of unique sender or recipient ids.
+   */
+  async getSenderOrRecipientIds(options: {
+    senderOrRecipientId: string;
+    outboxMetadataId: string;
+    sentOrReceived: 'sent' | 'received';
+  }) {
+    let senderOrRecipientIds: DocumentBox[];
+
+    if (options.sentOrReceived === 'sent') {
+      senderOrRecipientIds = await this.documentOutboxesRepository.findAll({
+        where: {
+          SenderId: options.senderOrRecipientId,
+          OutboxMetadataId: options.outboxMetadataId,
+        },
+        attributes: ['RecipientId'],
+      });
+
+      return [
+        ...new Set(
+          senderOrRecipientIds.map(
+            (senderOrRecipientId) => senderOrRecipientId.RecipientId,
+          ),
+        ),
+      ];
+    } else if (options.sentOrReceived === 'received') {
+      senderOrRecipientIds = await this.documentOutboxesRepository.findAll({
+        where: {
+          RecipientId: options.senderOrRecipientId,
+          OutboxMetadataId: options.outboxMetadataId,
+        },
+        attributes: ['SenderId'],
+      });
+
+      return [
+        ...new Set(
+          senderOrRecipientIds.map(
+            (senderOrRecipientId) => senderOrRecipientId.SenderId,
+          ),
+        ),
+      ];
+    } else return;
+  }
+
+  // services for controllers
 
   async create(createDocumentOutboxDto: CreateDocumentBoxDto, user: User) {
     const outboxMetadata =
@@ -83,33 +186,17 @@ export class DocumentBoxesService {
     // for each sent document-box, get all the documentIds, recipientIds, and outboxMetadataId
     const sentDocumentsBox = await Promise.all(
       sentDocumentBoxes.map(async (sentDocumentBox) => {
-        const documentIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['DocumentId'],
+        const uniqueDocumentIds = await this.getDocumentIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'sent',
         });
 
-        // remove duplicates
-        const uniqueDocumentIds = [
-          ...new Set(documentIds.map((documentId) => documentId.DocumentId)),
-        ];
-
-        const recipientIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['RecipientId'],
+        const uniqueRecipientIds = await this.getSenderOrRecipientIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'sent',
         });
-
-        // remove duplicates
-        const uniqueRecipientIds = [
-          ...new Set(
-            recipientIds.map((recipientId) => recipientId.RecipientId),
-          ),
-        ];
 
         return {
           documentIds: uniqueDocumentIds,
@@ -138,33 +225,17 @@ export class DocumentBoxesService {
     // for each sent document-box, get all the documentIds, recipientIds, and outboxMetadataId
     const sentDocumentsBox = await Promise.all(
       sentDocumentBoxes.map(async (sentDocumentBox) => {
-        const documentIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['DocumentId'],
+        const uniqueDocumentIds = await this.getDocumentIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'sent',
         });
 
-        // remove duplicates
-        const uniqueDocumentIds = [
-          ...new Set(documentIds.map((documentId) => documentId.DocumentId)),
-        ];
-
-        const recipientIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            SenderId: user.id,
-            OutboxMetadataId: sentDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['RecipientId'],
+        const uniqueRecipientIds = await this.getSenderOrRecipientIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: sentDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'sent',
         });
-
-        // remove duplicates
-        const uniqueRecipientIds = [
-          ...new Set(
-            recipientIds.map((recipientId) => recipientId.RecipientId),
-          ),
-        ];
 
         return {
           documentIds: uniqueDocumentIds,
@@ -213,31 +284,17 @@ export class DocumentBoxesService {
     // for each received document-box, get all the documentIds, senderIds, and outboxMetadataId
     const receivedDocumentsBox = await Promise.all(
       receivedDocumentBoxes.map(async (receivedDocumentBox) => {
-        const documentIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            RecipientId: user.id,
-            OutboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['DocumentId'],
+        const uniqueDocumentIds = await this.getDocumentIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'received',
         });
 
-        // remove duplicates
-        const uniqueDocumentIds = [
-          ...new Set(documentIds.map((documentId) => documentId.DocumentId)),
-        ];
-
-        const senderIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            RecipientId: user.id,
-            OutboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['SenderId'],
+        const uniqueSenderIds = await this.getSenderOrRecipientIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'received',
         });
-
-        // remove duplicates
-        const uniqueSenderIds = [
-          ...new Set(senderIds.map((senderId) => senderId.SenderId)),
-        ];
 
         return {
           documentIds: uniqueDocumentIds,
@@ -291,31 +348,17 @@ export class DocumentBoxesService {
 
     const receivedDocumentsBox = await Promise.all(
       receivedDocumentBoxes.map(async (receivedDocumentBox) => {
-        const documentIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            RecipientId: user.id,
-            OutboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['DocumentId'],
+        const uniqueDocumentIds = await this.getDocumentIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'received',
         });
 
-        // remove duplicates
-        const uniqueDocumentIds = [
-          ...new Set(documentIds.map((documentId) => documentId.DocumentId)),
-        ];
-
-        const senderIds = await this.documentOutboxesRepository.findAll({
-          where: {
-            RecipientId: user.id,
-            OutboxMetadataId: receivedDocumentBox.OutboxMetadataId,
-          },
-          attributes: ['SenderId'],
+        const uniqueSenderIds = await this.getSenderOrRecipientIds({
+          senderOrRecipientId: user.id,
+          outboxMetadataId: receivedDocumentBox.OutboxMetadataId,
+          sentOrReceived: 'received',
         });
-
-        // remove duplicates
-        const uniqueSenderIds = [
-          ...new Set(senderIds.map((senderId) => senderId.SenderId)),
-        ];
 
         return {
           documentIds: uniqueDocumentIds,
