@@ -24,7 +24,6 @@ export class ParseDocumentVersionPipePipe implements PipeTransform {
     if (versionStatus) {
       return versionStatus;
     }
-    console.error({ documentVersion: documentVersion.toUpperCase() });
     throw new NotFoundException(
       `The document version "${documentVersion}" is not valid.`,
     );

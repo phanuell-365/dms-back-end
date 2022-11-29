@@ -297,6 +297,7 @@ describe('Outbox and Inbox App (e2e)', function () {
             .spec()
             .post('/documents/boxes/send')
             .withJson({ ...createDocumentOutboxDto })
+            .inspect()
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
             .expectStatus(201);
         });
@@ -329,13 +330,93 @@ describe('Outbox and Inbox App (e2e)', function () {
   });
 
   describe('Sent and Received documents', function () {
+    let firstSentDocumentMetadataId: string;
     describe('Sent documents', function () {
       describe('Get all sent documents', function () {
-        it('should return all sent documents by the authorized user', function () {
-          return pactum
+        it('should return all sent documents by the authorized user', async function () {
+          const res = await pactum
             .spec()
             .get('/documents/boxes/sent')
             .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .inspect()
+            .expectStatus(200)
+            .toss();
+
+          firstSentDocumentMetadataId = res.body[0].outboxMetadata.id;
+        });
+      });
+
+      describe('Get one sent document', function () {
+        it('should return the sent document by the authorized user', function () {
+          return pactum
+            .spec()
+            .get('/documents/boxes/sent/{documentMetadataId}')
+            .withPathParams({ documentMetadataId: firstSentDocumentMetadataId })
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .inspect()
+            .expectStatus(200);
+        });
+      });
+    });
+
+    describe('Received Documents', function () {
+      // log in the second user
+      describe('Log in the second user', function () {
+        const secondUserAuthDto: AuthDto = {
+          username: 'miley',
+          password: 'cyrus',
+        };
+
+        it('should return an access token', function () {
+          return pactum
+            .spec()
+            .post('/auth/users/login')
+            .withJson(secondUserAuthDto)
+            .inspect()
+            .expectStatus(201)
+            .stores('userTwoAccessToken', 'access_token')
+            .toss();
+        });
+      });
+
+      let firstReceivedDocumentMetadataId: string;
+
+      describe('Get all received documents', function () {
+        it('should return all received documents by Miley Cyrus', async function () {
+          const res = await pactum
+            .spec()
+            .get('/documents/boxes/received')
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
+            .inspect()
+            .expectStatus(200)
+            .toss();
+
+          firstReceivedDocumentMetadataId = res.body[0].outboxMetadata.id;
+        });
+
+        it('should return all received documents by Admin', async function () {
+          // const res = await pactum
+          return pactum
+            .spec()
+            .get('/documents/boxes/received')
+            .withHeaders({ Authorization: 'Bearer $S{accessToken}' })
+            .inspect()
+            .expectStatus(200)
+            .toss();
+
+          // firstReceivedDocumentMetadataId = res.body[0].outboxMetadata.id;
+        });
+      });
+
+      describe('Get One Received Document', function () {
+        it('should return a received document', function () {
+          return pactum
+            .spec()
+            .get('/documents/boxes/received/{documentMetadataId}')
+            .withHeaders({ Authorization: 'Bearer $S{userTwoAccessToken}' })
+            .withPathParams({
+              documentMetadataId: firstReceivedDocumentMetadataId,
+            })
             .inspect()
             .expectStatus(200);
         });

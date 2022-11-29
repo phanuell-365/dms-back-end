@@ -19,7 +19,7 @@ import { JwtAuthGuard } from '../auth/guards';
 export class DocumentBoxesController {
   constructor(private readonly documentBoxesService: DocumentBoxesService) {}
 
-  @Post('/send')
+  @Post('send')
   create(
     @Body() createDocumentOutboxDto: CreateDocumentBoxDto,
     @GetUser() user: User,
@@ -27,9 +27,46 @@ export class DocumentBoxesController {
     return this.documentBoxesService.create(createDocumentOutboxDto, user);
   }
 
+  @Get('sent/:documentMetadataId')
+  findOneSentDocument(
+    @Param('documentMetadataId') id: string,
+    // @Query('reference', new ParseDocumentReferencePipePipe())
+    // documentReference: DocumentReferences,
+    @GetUser()
+    user: User,
+  ) {
+    return this.documentBoxesService.findOneSentDocumentBoxByUser(id, user);
+  }
+
   @Get('sent')
-  findAllSentDocuments(@GetUser() user: User) {
-    return this.documentBoxesService.findAllSentDocumentsByUser(user);
+  findAllSentDocuments(
+    // @Query('reference', new ParseDocumentReferencePipePipe())
+    // reference: DocumentReferences,
+    @GetUser()
+    user: User,
+  ) {
+    return this.documentBoxesService.findAllSentDocumentBoxesByUser(user);
+  }
+
+  @Get('received/:documentMetadataId')
+  findOneReceivedDocument(
+    @Param('documentMetadataId') id: string,
+    // @Query('reference', new ParseDocumentReferencePipePipe())
+    // documentReference: DocumentReferences,
+    @GetUser()
+    user: User,
+  ) {
+    return this.documentBoxesService.findOneReceivedDocumentBoxByUser(id, user);
+  }
+
+  @Get('received')
+  findAllReceivedDocuments(
+    // @Query('reference', new ParseDocumentReferencePipePipe())
+    // reference: DocumentReferences,
+    @GetUser()
+    user: User,
+  ) {
+    return this.documentBoxesService.findAllReceivedDocumentBoxesByUser(user);
   }
 
   @Get()
@@ -45,9 +82,9 @@ export class DocumentBoxesController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateDocumentSentboxDto: UpdateDocumentBoxDto,
+    @Body() updateDocumentBoxDto: UpdateDocumentBoxDto,
   ) {
-    return this.documentBoxesService.update(+id, updateDocumentSentboxDto);
+    return this.documentBoxesService.update(+id, updateDocumentBoxDto);
   }
 
   @Delete(':id')
