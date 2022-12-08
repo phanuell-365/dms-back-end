@@ -39,8 +39,8 @@ describe('Outbox and Inbox App (e2e)', function () {
   describe('Workflow Management System', function () {
     describe('Users Module', function () {
       const authDto: AuthDto = {
-        username: 'Admin',
-        password: 'admin',
+        email: 'admin@local.com',
+        password: '12345678',
       };
 
       describe('Login', function () {
@@ -59,7 +59,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         const firstUser: CreateUserDto = {
           firstname: 'Johny',
           lastname: 'Cage',
-          password: 'cage',
+          password: 'cage1234',
           phone: '0729294854',
           role: Roles.PRINCIPAL,
           username: 'johny',
@@ -69,7 +69,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         const secondUser: CreateUserDto = {
           firstname: 'Miley',
           lastname: 'Cyrus',
-          password: 'cyrus',
+          password: 'cyrus123',
           phone: '0729294854',
           role: Roles.REGISTRAR,
           username: 'miley',
@@ -79,7 +79,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         const thirdUser: CreateUserDto = {
           firstname: 'Obadiah',
           lastname: 'Stane',
-          password: 'stane',
+          password: 'stane123',
           phone: '0729294854',
           role: Roles.HOD,
           username: 'obadiah',
@@ -90,7 +90,7 @@ describe('Outbox and Inbox App (e2e)', function () {
         const fourthUser: CreateUserDto = {
           firstname: 'Ivy',
           lastname: 'Parker',
-          password: 'parker',
+          password: 'parker12',
           phone: '0729294854',
           role: Roles.HOD,
           username: 'ivy',
@@ -361,8 +361,8 @@ describe('Outbox and Inbox App (e2e)', function () {
       // log in the second user
       describe('Log in the second user', function () {
         const secondUserAuthDto: AuthDto = {
-          username: 'miley',
-          password: 'cyrus',
+          email: 'mileycyrus@localhost.com',
+          password: 'cyrus123',
         };
 
         it('should return an access token', function () {

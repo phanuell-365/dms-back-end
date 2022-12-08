@@ -32,8 +32,8 @@ describe('DMS (e2e)', () => {
 
   describe('Auth Module', function () {
     const authDto: AuthDto = {
-      username: 'Admin',
-      password: 'admin',
+      email: 'admin@local.com',
+      password: '12345678',
     };
 
     describe('Login', function () {

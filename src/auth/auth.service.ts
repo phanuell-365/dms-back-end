@@ -16,7 +16,7 @@ export class AuthService {
 
   async login(authDto: AuthDto) {
     let unknownUser: boolean | User = await this.usersService.getUnscopedUser({
-      username: authDto.username,
+      email: authDto.email,
     });
 
     if (!unknownUser) {

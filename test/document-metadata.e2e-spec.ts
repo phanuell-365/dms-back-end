@@ -34,8 +34,8 @@ describe('Document Metadata (e2e)', () => {
   describe('Workflow management system', function () {
     describe('Login the admin', function () {
       const authDto: AuthDto = {
-        username: 'admin',
-        password: 'admin',
+        email: 'admin@local.com',
+        password: '12345678',
       };
       it('should return a new token', async function () {
         const res = await pactum

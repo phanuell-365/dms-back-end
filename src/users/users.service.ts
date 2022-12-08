@@ -118,8 +118,8 @@ export class UsersService {
         firstname: 'Admin',
         lastname: 'admin',
         username: 'Admin',
-        email: 'administrator@localhost.com',
-        password: 'admin',
+        email: 'admin@local.com',
+        password: '12345678',
         phone: '0739390253',
         role: Roles.ADMIN,
       };

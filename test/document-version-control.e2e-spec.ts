@@ -37,8 +37,8 @@ describe('DMS Version Control (e2e)', () => {
   describe('Workflow Management', function () {
     describe('Auth Module', function () {
       const authDto: AuthDto = {
-        username: 'Admin',
-        password: 'admin',
+        email: 'admin@local.com',
+        password: '12345678',
       };
 
       describe('Login', function () {
